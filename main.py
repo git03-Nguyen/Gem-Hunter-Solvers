@@ -111,6 +111,7 @@ def get_CNF_clauses(matrix):
 
     clauses = []
     matrix = padding(matrix)
+    print(f"Padded matrix:\n {matrix}\n")
 
     n_rows = len(matrix)
     n_cols = len(matrix[0])
@@ -126,8 +127,8 @@ def get_CNF_clauses(matrix):
                 matrix[i][j] -= len(traps)                                          # Trừ đi số lượng bẫy "T" xung quanh ô đó
 
                 unknowns = get_around(matrix, [i, j], lambda x: x is None)          # Những ô chưa biết xung quanh ô đó       
-                print(f"Unknowns for [{i}, {j}]: {unknowns}") 
-                unknowns = [to_1D(pos, [n_rows - 2, n_cols - 2]) for pos in unknowns]       # Chuyển vị trí 2D sang 1D
+                print(f"Unknowns for [{i}, {j}] ({matrix[i][j]}): {unknowns}") 
+                unknowns = [to_1D((pos[0] - 1, pos[1] - 1), [n_rows - 2, n_cols - 2]) for pos in unknowns]       # Chuyển vị trí 2D sang 1D
                 
                 clauses += exactly(unknowns, matrix[i][j])                          # Thêm CNF vào KB: "Có đúng matrix[i][j] ô bẫy trong unknowns"
 
@@ -157,14 +158,14 @@ def solve_by_pysat(KB):
         # 1.2 the formula is satisfiable and so has a model:
         print('and the model is:', solver.get_model())
 
-        # 2.1 apply the MiniSat-like assumption interface:
-        print('formula is',
-            f'{"s" if solver.solve(assumptions=[1, 2]) else "uns"}atisfiable',
-            'assuming x1 and x2')
+        # # 2.1 apply the MiniSat-like assumption interface:
+        # print('formula is',
+        #     f'{"s" if solver.solve(assumptions=[1, 2]) else "uns"}atisfiable',
+        #     'assuming x1 and x2')
 
-        # 2.2 the formula is unsatisfiable,
-        # i.e. an unsatisfiable core can be extracted:
-        print('and the unsatisfiable core is:', solver.get_core())
+        # # 2.2 the formula is unsatisfiable,
+        # # i.e. an unsatisfiable core can be extracted:
+        # print('and the unsatisfiable core is:', solver.get_core())
 
 
 
@@ -183,7 +184,10 @@ if __name__ == "__main__":
     print(f"KB ({len(KB)}):\n {KB}")
 
     print("\nSolving...\n")
-    result = solve_by_pysat(KB)
+    solve_by_pysat(KB)
+
+    
+    # print(f"\nOutput matrix:\n {matrix}\n")
     # print(result)
 
     # if result is not None:
