@@ -14,7 +14,7 @@ import timeit
 # Hàm giải bài toán Gem Hunter
 # Input: ma trận Gem Hunter, thuật toán giải
 # Output: model của SAT Solver hoặc None nếu không có lời giải
-def solve(matrix, algorithm = "pysat"):
+def solve(matrix, algorithm = "pysat", repeat = 5):
     '''
         Giải bài toán Gem Hunter bằng các thuật toán SAT Solvers khác nhau.
         
@@ -31,7 +31,6 @@ def solve(matrix, algorithm = "pysat"):
     
     model = None
     loop = 1
-    repeat = 5
     elapsed_time = None
 
     if algorithm == "pysat":

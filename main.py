@@ -68,7 +68,7 @@ def main(argv):
         output_matrix(solution, output_file);
         print(f"\nSOLUTION:\n{print_matrix(solution)}")
     else:
-        output_matrix([[""]], output_file);
+        output_matrix([["Unsolvable"]], output_file);
         print("NO SOLUTION FOUND!")
 
     print(f"Elapsed time: {min(elapsed_time) * 1000} miliseconds")
