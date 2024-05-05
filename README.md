@@ -3,6 +3,11 @@
 ## Description:
 This project is a solver for the Gem Hunter (originally from the game Minesweeper) game.
 
+## Required Libraries:
+```bash
+pip install -r requirements.txt
+```
+
 ## Usage:
 ```bash
 python main.py <algorithm> <test_case>
@@ -27,7 +32,7 @@ python main.py pysat 5x5
 ```
 
 ## Output:
-After reading input from the file `testcases/5x5/input.txt`, the program will solve the grid using the PySAT algorithm.\\
+After reading input from the file `testcases/5x5/input.txt`, the program will solve the grid using the PySAT algorithm.\
 The output will be the solved grid, saved in a file named `output.txt` in the same directory.
 
 
