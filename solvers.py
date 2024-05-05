@@ -26,7 +26,7 @@ def solve(matrix, algorithm = "pysat"):
     '''
 
     KB = get_CNF_clauses(matrix)
-    print(f"KnowledgeBase ({len(KB)}):\n {KB}")
+    print(f"CNFs ({len(KB)}):\n {KB}")
     
     model = None
     if algorithm == "pysat":
@@ -72,15 +72,15 @@ def solve_by_pysat(KB):
 # ---------------------------------------------
 # Giải bằng DPLL
 def solve_by_dpll(KB):
-    raise NotImplementedError
+    raise NotImplementedError("DPLL is not implemented")
 
 # ---------------------------------------------
 # Giải bằng backtracking
 def solve_by_backtracking(KB):
-    raise NotImplementedError
+    raise NotImplementedError("Backtracking is not implemented")
 
 # ---------------------------------------------
 # Giải bằng bruteforce
 def solve_by_bruteforce(KB):
-    raise NotImplementedError
+    raise NotImplementedError("Bruteforce is not implemented")
 
