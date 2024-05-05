@@ -8,8 +8,9 @@
 # - solve_by_bruteforce(KB): Giải bài toán bằng Bruteforce
 
 from cnf import get_CNF_clauses
-from utils import edit_matrix
+from utils import edit_matrix, get_around, padding, to_1D
 import timeit
+from itertools import product
 
 # Hàm giải bài toán Gem Hunter
 # Input: ma trận Gem Hunter, thuật toán giải
@@ -27,29 +28,35 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
     '''
 
     KB = get_CNF_clauses(matrix)
-    print(f"CNFs ({len(KB)}):\n {KB}")
+    print(f"CNFs length: {len(KB)}")
 
     func = None
+    args = None
     if algorithm == "pysat":
         func = solve_by_pysat
+        args = [KB]
     elif algorithm == "dpll":
         func = solve_by_dpll
+        args = [KB]
     elif algorithm == "backtracking":
         func = solve_by_backtracking
+        args = [KB]
     elif algorithm == "bruteforce":
         func = solve_by_bruteforce
+        args = [matrix]
     else:
         raise ValueError("Invalid algorithm")
-    
+
     loop = 1
     repeat = 5
     elapsed_time = None
     if measure_time:
-        elapsed_time = min(timeit.repeat(lambda: func(KB), number=loop, repeat=repeat)) / loop
+        elapsed_time = min(timeit.repeat(lambda: func(*args), number=loop, repeat=repeat)) / loop
     
-    model = func(KB)
+    model = func(*args)
 
     if model is not None:
+        print(f"Model: {model}")
         return edit_matrix(matrix, model), elapsed_time
     
     
@@ -80,6 +87,46 @@ def solve_by_backtracking(KB):
 
 # ---------------------------------------------
 # Giải bằng bruteforce
-def solve_by_bruteforce(KB):
-    raise NotImplementedError("Bruteforce is not implemented")
+def solve_by_bruteforce(matrix):
+
+    # Hàm kiểm tra ma trận có hợp lệ không
+    def is_valid(matrix):
+        for i in range(1, n - 1):
+            for j in range(1, m - 1):
+                if type(matrix[i][j]) == int:
+                    count = len(get_around(matrix, (i, j), lambda x: x == "T"))
+                    if count != matrix[i][j]:
+                        return False
+        return True
+
+    matrix = padding(matrix)
+    n = len(matrix)
+    m = len(matrix[0])
+
+    # Tìm tất cả các biến không xác định
+    unknowns = []
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            if matrix[i][j] is None:
+                unknowns.append(to_1D((i - 1, j - 1), m - 2))
+    
+    # Tạo tất cả các trường hợp có thể của các biến không xác định => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
+    for p in product(["T", "G"], repeat=len(unknowns)):
+        case = dict(zip(unknowns, p))
+        
+        # Gán giá trị "T" và "G" vào ma trận
+        for key in case:
+            i = (key - 1) // (m - 2)
+            j = (key - 1) % (m - 2)  
+            matrix[i + 1][j + 1] = case[key]
+
+        # Kiểm tra ma trận có hợp lệ không, nếu có thì trả về trường hợp đó
+        if is_valid(matrix):
+            for key in case:
+                case[key] = key if case[key] == "T" else -key
+            return list(case.values())
+        
+    # Sau khi vét cạn tất cả các trường hợp mà không có trường hợp nào hợp lệ thì trả về None
+    return None
+
 

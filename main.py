@@ -96,7 +96,9 @@ if __name__ == "__main__":
     #     print(f"Error: {e}")
 
     # Testing
-    run(["", "pysat", "9x9", "True"])
+    # run(["", "pysat", "4x4", "True"])
+
+    run(["", "bruteforce", "9x9", "True"])
 
     # Profiling
     # profile()

@@ -52,11 +52,8 @@ def edit_matrix(matrix, model):
     for i in range(n_rows):
         for j in range(n_cols):
             if matrix[i][j] is None:
-                matrix[i][j] = model[i * n_cols + j]
-                if model[i * n_cols + j] > 0:
-                    matrix[i][j] = "T"
-                else:
-                    matrix[i][j] = "G"
+                index = i * n_cols + j + 1
+                matrix[i][j] = "T" if index in model else "G"
                 
     return matrix
 
