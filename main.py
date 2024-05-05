@@ -22,38 +22,45 @@ _TEST_CASES = {
     "20x20": "testcases/20x20",
 }
 
-# In ra thông báo lỗi nếu tham số không hợp lệ: test_case, algorithm
+# In ra thông báo lỗi nếu tham số không hợp lệ: test_case, algorithm, measure_time
 def read_args(argv):
     algorithms = ", ".join(_ALGORITHMS.keys())
     test_cases = ", ".join(_TEST_CASES.keys())
 
     if len(argv) < 3:
-        print("\nUsage: python main.py <algorithm> <test_case>")
+        print("\nUsage: python main.py <algorithm> <test_case> [measure_time]")
         print(f"- algorithm: {algorithms}")
         print(f"- test_case: {test_cases}")
+        print("- measure_time: True/False (default: False)")
         return None, None
 
     algorithm = argv[1]
     test_case = argv[2]
+    measure_time = argv[3].lower() == "true" if len(argv) > 3 else False
     
     if algorithm not in _ALGORITHMS:
         print(f"Algorithm {algorithm} not found")
         print(f"Available: {algorithms}")
-        return None, None
+        return None, None, None
 
     if test_case not in _TEST_CASES:
         print(f"Test case {test_case} not found")
         print(f"Available: {test_cases}")
-        return None, None
+        return None, None, None
     
-    return algorithm, test_case
+    if argv[3] not in ["True", "False"]:
+        print(f"Invalid measure_time: {argv[3]}")
+        print("Available: True/False")
+        return None, None, None
+    
+    return algorithm, test_case, measure_time
 
 
 # ---------------------------------------------
 # --------------- MAIN FUNCTION ---------------
 # ---------------------------------------------
-def main(argv):
-    algorithm, test_case = read_args(argv)
+def run(argv):
+    algorithm, test_case, measure_time = read_args(argv)
     if test_case is None or algorithm is None: return
 
     input_file = _TEST_CASES[test_case] + "/input.txt"
@@ -62,7 +69,7 @@ def main(argv):
     matrix = input_matrix(input_file); 
     print(f"PROBLEM:\n{print_matrix(matrix)}")
 
-    solution, elapsed_time = solve(matrix, algorithm)
+    solution, elapsed_time = solve(matrix, algorithm, measure_time)
     
     if solution is not None:
         output_matrix(solution, output_file);
@@ -71,17 +78,29 @@ def main(argv):
         output_matrix([["Unsolvable"]], output_file);
         print("NO SOLUTION FOUND!")
 
-    print(f"Elapsed time: {min(elapsed_time) * 1000} miliseconds")
+    if measure_time:
+        print(f"Elapsed time: {elapsed_time * 1000} miliseconds")
+
+
+# ---------------------------------------------
+# --------------- PROFILING FUNCTION ----------
+# ---------------------------------------------
+def profile():
+    raise NotImplementedError("Not implemented yet")
 
 # ---------------------------------------------
 if __name__ == "__main__":
     # try:
-    #     main(sys.argv)
+    #     run(sys.argv)
     # except Exception as e:
     #     print(f"Error: {e}")
 
     # Testing
-    main(["", "pysat", "9x9"])
+    run(["", "pysat", "9x9", "True"])
+
+    # Profiling
+    # profile()
+
 
 
 
