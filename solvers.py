@@ -9,6 +9,7 @@
 
 from cnf import get_CNF_clauses
 from utils import edit_matrix
+import timeit
 
 # Hàm giải bài toán Gem Hunter
 # Input: ma trận Gem Hunter, thuật toán giải
@@ -29,21 +30,30 @@ def solve(matrix, algorithm = "pysat"):
     print(f"CNFs ({len(KB)}):\n {KB}")
     
     model = None
+    loop = 1
+    repeat = 5
+    elapsed_time = None
+
     if algorithm == "pysat":
         model = solve_by_pysat(KB)
+        elapsed_time = timeit.repeat(lambda: solve_by_pysat(KB), number=loop, repeat=repeat)
     elif algorithm == "dpll":
         model = solve_by_dpll(KB)
+        elapsed_time = timeit.repeat(lambda: solve_by_dpll(KB), number=loop, repeat=repeat)
     elif algorithm == "backtracking":
         model = solve_by_backtracking(KB)
+        elapsed_time = timeit.repeat(lambda: solve_by_backtracking(KB), number=loop, repeat=repeat)
     elif algorithm == "bruteforce":
         model = solve_by_bruteforce(KB)
+        elapsed_time = timeit.repeat(lambda: solve_by_bruteforce(KB), number=loop, repeat=repeat)
     else:
         raise ValueError("Invalid algorithm")
-    
+
     if model is not None:
-        return edit_matrix(matrix, model)
+        return edit_matrix(matrix, model), elapsed_time
     
-    return None
+    
+    return None, elapsed_time
 
 # ---------------------------------------------
 # Giải quyết bài toán Gem Hunter bằng cách sử dụng thư viện PySAT
@@ -66,7 +76,7 @@ def solve_by_pysat(KB):
         
         # Nếu có lời giải
         model = solver.get_model()
-        print(f"Model: {model}")
+        # print(f"Model: {model}")
         return model
         
 # ---------------------------------------------

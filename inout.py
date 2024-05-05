@@ -48,3 +48,13 @@ def output_matrix(matrix, file_name = "./testcases/output.txt"):
         for row in matrix:
             f.write(", ".join([str(x) if x is not None else "_" for x in row]) + "\n")
 
+# ---------------------------------------------
+# Hàm in ma trận ra màn hình
+def print_matrix(matrix):
+    str_matrix = "";
+    for row in matrix:
+        str_matrix += ", ".join([str(x) if x is not None else "_" for x in row]) + "\n"
+    return str_matrix
+
+        
+

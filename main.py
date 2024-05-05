@@ -1,7 +1,7 @@
 # Description: File chính chứa hàm main, thực thi chương trình
 
 import sys
-from inout import input_matrix, output_matrix
+from inout import input_matrix, output_matrix, print_matrix
 from solvers import solve
 
 # Danh sách thuật toán
@@ -14,6 +14,7 @@ _ALGORITHMS = {
 
 # Danh sách test case
 _TEST_CASES = {
+    "4x4": "testcases/4x4", 
     "5x5": "testcases/5x5",
     "9x9": "testcases/9x9",
     "11x11": "testcases/11x11",
@@ -59,26 +60,28 @@ def main(argv):
     output_file = _TEST_CASES[test_case] + "/output.txt"
 
     matrix = input_matrix(input_file); 
-    print(f"Input matrix:\n {matrix}")
+    print(f"PROBLEM:\n{print_matrix(matrix)}")
 
-    solution = solve(matrix, algorithm = algorithm)
+    solution, elapsed_time = solve(matrix, algorithm)
     
     if solution is not None:
         output_matrix(solution, output_file);
-        print(f"Output matrix:\n {solution}\n")
+        print(f"\nSOLUTION:\n{print_matrix(solution)}")
     else:
-        print("No solution found")
-        output_matrix([["No solution"]], output_file);
+        output_matrix([[""]], output_file);
+        print("NO SOLUTION FOUND!")
+
+    print(f"Elapsed time: {min(elapsed_time) * 1000} miliseconds")
 
 # ---------------------------------------------
 if __name__ == "__main__":
-    try:
-        main(sys.argv)
-    except Exception as e:
-        print(f"Error: {e}")
+    # try:
+    #     main(sys.argv)
+    # except Exception as e:
+    #     print(f"Error: {e}")
 
-    # testing
-    # main(["", "5x5", "pysat"])
+    # Testing
+    main(["", "pysat", "9x9"])
 
 
 
