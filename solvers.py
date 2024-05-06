@@ -11,11 +11,14 @@ from cnf import get_CNF_clauses
 from utils import edit_matrix, padding, to_1D
 import timeit
 
+from pysat.formula import CNF
+from pysat.solvers import Solver
+
 model = None
 # Hàm giải bài toán Gem Hunter
 # Input: ma trận Gem Hunter, thuật toán giải
 # Output: model của SAT Solver hoặc None nếu không có lời giải
-def solve(matrix, algorithm = "pysat"):
+def solve(matrix, algorithm = "pysat", measure_time = False):
     '''
         Giải bài toán Gem Hunter bằng các thuật toán SAT Solvers khác nhau.
         
@@ -29,8 +32,7 @@ def solve(matrix, algorithm = "pysat"):
     KB = get_CNF_clauses(matrix)
     print(f"CNFs length: {len(KB)}")
 
-    func = None
-    args = None
+    func, args = None, None
     if algorithm == "pysat":
         func = solve_by_pysat
         args = [KB]
@@ -46,21 +48,26 @@ def solve(matrix, algorithm = "pysat"):
     else:
         raise ValueError("Invalid algorithm")
 
-    model = func(*args)
+    start, end, measured_time = 0, 0, 0
+    
+    if measure_time:
+        start = timeit.default_timer()
+        model = func(*args)
+        end = timeit.default_timer()
+        measured_time = (end - start) * 1000
+    else:
+        model = func(*args)
 
     if model is not None:
         print(f"Model ({len(model)}): {model}")
-        return edit_matrix(matrix, model)
+        return edit_matrix(matrix, model), measured_time
     
-    return None
+    return None, measured_time
 
 # ---------------------------------------------
 # Giải quyết bài toán Gem Hunter bằng cách sử dụng thư viện PySAT
 # PySAT: https://pysathq.github.io/docs/html/index.html
 def solve_by_pysat(KB):
-    from pysat.formula import CNF
-    from pysat.solvers import Solver
-
     # Tạo một solver (mặc định là Minisat 2.2) cho các câu mệnh đề CNF
     cnf = CNF(from_clauses=KB)
     with Solver(bootstrap_with=cnf) as solver:
@@ -80,27 +87,30 @@ def solve_by_backtracking(KB):
 
 # ---------------------------------------------
 # Check
-def is_valid(case, numbers_dict, unknowns_set, directions_set, bit_masks_dict):
-    for (x, y) in numbers_dict:
+def is_valid(case, numbers_dict, numbers_around_dict, bit_masks_dict):
+    for (x, y) in numbers_around_dict.keys():
         num = numbers_dict[(x, y)]
         count = 0
-        for dx, dy in directions_set:
-            xx = x + dx
-            yy = y + dy
-            if (xx, yy) in unknowns_set:
-                if case & bit_masks_dict[(xx, yy)]:
-                    count += 1
-                    if count > num:
-                        return False
+        for xx, yy in numbers_around_dict[(x, y)]: 
+            if case & bit_masks_dict[(xx, yy)]:
+                count += 1
+                if count > num:
+                    return False
         if count != num:
             return False
     return True
 # ---------------------------------------------
 def loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end):
     length = len(unknowns)
-    directions_set = {(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)}
-    unknowns_set = set(unknowns_dict.keys())
     bit_masks_dict = {(x, y): 1 << i for i, (x, y) in enumerate(unknowns_dict.keys())}
+    numbers_around_dict = {}
+    for (x, y) in numbers_dict.keys():
+        numbers_around_dict[(x, y)] = set()
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+            xx = x + dx
+            yy = y + dy
+            if (xx, yy) in unknowns_dict.keys():
+                numbers_around_dict[(x, y)].add((xx, yy))
 
     for c in range(start, end):
 
@@ -112,7 +122,7 @@ def loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end):
             continue
 
         # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
-        if is_valid(c, numbers_dict, unknowns_set, directions_set, bit_masks_dict):
+        if is_valid(c, numbers_dict, numbers_around_dict, bit_masks_dict):
             case = [bool(c & (1 << i)) for i in range(length)]
             print(f"Satisfiable (No.{c}): {case}")
             return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]

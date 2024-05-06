@@ -69,7 +69,7 @@ def run(argv):
     matrix = input_matrix(input_file); 
     print(f"PROBLEM:\n{print_matrix(matrix)}")
 
-    solution = solve(matrix, algorithm)
+    solution, elapsed_time = solve(matrix, algorithm, measure_time)
     
     if solution is not None:
         output_matrix(solution, output_file);
@@ -77,6 +77,9 @@ def run(argv):
     else:
         output_matrix([["Unsolvable"]], output_file);
         print("NO SOLUTION FOUND!")
+
+    if measure_time:
+        print(f"Elapsed time: {elapsed_time:.4f} ms")
 
 
 # ---------------------------------------------
@@ -94,16 +97,17 @@ if __name__ == "__main__":
 
     # Testing
     # run(["", "pysat", "9x9", "True"])
-    # run(["", "pysat", "5x5", "False"])
+    # run(["", "pysat", "9x9", "True"])
 
     run(["", "bruteforce", "9x9", "True"])
     # run(["", "bruteforce", "5x5", "True"])
-    # run(["", "bruteforce", "5x5", "True"])
+    # run(["", "bruteforce", "4x4", "True"])
 
     # Profiling
     # profile()
 
     # py -m cProfile -s cumtime main.py 
+    # py -m cProfile -s ncalls main.py 
 
 
 
