@@ -8,14 +8,15 @@
 # - solve_by_bruteforce(KB): Giải bài toán bằng Bruteforce
 
 from cnf import get_CNF_clauses
-from utils import edit_matrix, get_around, padding, to_1D
+from utils import count_around, edit_matrix, padding, to_1D, sum_numbers
 import timeit
 from itertools import product
 
+model = None
 # Hàm giải bài toán Gem Hunter
 # Input: ma trận Gem Hunter, thuật toán giải
 # Output: model của SAT Solver hoặc None nếu không có lời giải
-def solve(matrix, algorithm = "pysat", measure_time = True):
+def solve(matrix, algorithm = "pysat", measure_time = True, repeat = 1):
     '''
         Giải bài toán Gem Hunter bằng các thuật toán SAT Solvers khác nhau.
         
@@ -48,17 +49,17 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
         raise ValueError("Invalid algorithm")
 
     loop = 1
-    repeat = 5
-    elapsed_time = None
+    elapsed_time = 0
+
     if measure_time:
         elapsed_time = min(timeit.repeat(lambda: func(*args), number=loop, repeat=repeat)) / loop
-    
-    model = func(*args)
+    else:
+        func(*args)
 
+    global model
     if model is not None:
         print(f"Model: {model}")
         return edit_matrix(matrix, model), elapsed_time
-    
     
     return None, elapsed_time
 
@@ -73,7 +74,9 @@ def solve_by_pysat(KB):
     cnf = CNF(from_clauses=KB)
     with Solver(bootstrap_with=cnf) as solver:
         solver.solve();
-        return solver.get_model()
+        global model
+        model = solver.get_model()
+        return model
         
 # ---------------------------------------------
 # Giải bằng DPLL
@@ -88,45 +91,78 @@ def solve_by_backtracking(KB):
 # ---------------------------------------------
 # Giải bằng bruteforce
 def solve_by_bruteforce(matrix):
-
-    # Hàm kiểm tra ma trận có hợp lệ không
-    def is_valid(matrix):
-        for i in range(1, n - 1):
-            for j in range(1, m - 1):
-                if type(matrix[i][j]) == int:
-                    count = len(get_around(matrix, (i, j), lambda x: x == "T"))
-                    if count != matrix[i][j]:
-                        return False
-        return True
+    global model
+    is_trap = lambda x: x == "T"
+    sum_num = sum_numbers(matrix)
 
     matrix = padding(matrix)
     n = len(matrix)
     m = len(matrix[0])
 
+    num_arr = []
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            if type(matrix[i][j]) == int:
+                num_arr.append((i, j))
+
+    # Hàm kiểm tra ma trận có hợp lệ không
+    def is_valid(matrix, count_T):
+
+        if count_T > sum_num:
+            return False
+        
+        for num in num_arr:
+            i, j = num
+            count = count_around(matrix, (i, j), is_trap)
+            if count != matrix[i][j]:
+                return False
+        return True
+
+    
+
     # Tìm tất cả các biến không xác định
     unknowns = []
+    unknowns_2 = []
     for i in range(1, n - 1):
         for j in range(1, m - 1):
             if matrix[i][j] is None:
                 unknowns.append(to_1D((i - 1, j - 1), m - 2))
+                unknowns_2.append((i, j))
+    print(f"Unknowns: {len(unknowns)} : {unknowns}")
     
     # Tạo tất cả các trường hợp có thể của các biến không xác định => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
-    for p in product(["T", "G"], repeat=len(unknowns)):
-        case = dict(zip(unknowns, p))
+    c = 0
+    prev_case = [None] * len(unknowns_2)
+    for case in product([True, False], repeat=len(unknowns_2)):
+
+        c+=1
+        if c % 1000000 == 0:
+            print(f"Case {c}: {case}")
+
+        # Tìm số lượng vị trí thay đổi
+        # for i, (prev, curr) in enumerate(zip(prev_case, case)):
+        #     # if prev != curr:
+        #     #     x, y = unknowns_2[i]
+        #     #     matrix[x][y] = "T" if curr else "G"
+        #     x, y = unknowns_2[i]
         
-        # Gán giá trị "T" và "G" vào ma trận
-        for key in case:
-            i = (key - 1) // (m - 2)
-            j = (key - 1) % (m - 2)  
-            matrix[i + 1][j + 1] = case[key]
+        prev_case = case
+
+        # Tìm số lượng "T" trong trường hợp hiện tại
+        count_T = case.count("T")
 
         # Kiểm tra ma trận có hợp lệ không, nếu có thì trả về trường hợp đó
-        if is_valid(matrix):
-            for key in case:
-                case[key] = key if case[key] == "T" else -key
-            return list(case.values())
+        # if is_valid(matrix, count_T):
+        #     print(f"Case {c}: {case}")
+        #     model = []
+        #     for i in range(len(unknowns_2)):
+        #         value = unknowns[i] if case[i] == "T" else -unknowns[i]
+        #         model.append(value)
+
+        #     return model
         
     # Sau khi vét cạn tất cả các trường hợp mà không có trường hợp nào hợp lệ thì trả về None
-    return None
+    model = None
+    return model
 
 

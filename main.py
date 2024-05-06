@@ -77,7 +77,7 @@ def run(argv):
     else:
         output_matrix([["Unsolvable"]], output_file);
         print("NO SOLUTION FOUND!")
-
+    
     if measure_time:
         print(f"Elapsed time: {elapsed_time * 1000} miliseconds")
 
@@ -96,13 +96,16 @@ if __name__ == "__main__":
     #     print(f"Error: {e}")
 
     # Testing
-    # run(["", "pysat", "4x4", "True"])
+    # run(["", "pysat", "9x9", "True"])
 
+    # run(["", "bruteforce", "4x4", "True"])
     run(["", "bruteforce", "9x9", "True"])
+    # run(["", "bruteforce", "4x4", "True"])
 
     # Profiling
     # profile()
 
+    # py -m cProfile -s cumtime main.py 
 
 
 
