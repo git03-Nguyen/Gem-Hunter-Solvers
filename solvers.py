@@ -79,6 +79,24 @@ def solve_by_backtracking(KB):
     raise NotImplementedError("Backtracking is not implemented")
 
 # ---------------------------------------------
+# Check
+def is_valid(case, numbers_arr, unknowns_dict):
+    for (x, y) in numbers_arr:
+        num = numbers_arr[(x, y)]
+        count = 0
+        for dx, dy in [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]]:
+            xx, yy = x + dx, y + dy
+            if (xx, yy) in unknowns_dict:
+                if case & (1 << unknowns_dict[(xx, yy)]):
+                    count += 1
+            if count > num:
+                return False
+        if count != num:
+            return False
+    return True
+
+
+
 # Giải bằng bruteforce
 def solve_by_bruteforce(matrix):
     # true_case = 3219758312 # for testing
@@ -106,116 +124,22 @@ def solve_by_bruteforce(matrix):
     numbers_sum = sum([matrix[pos[0]][pos[1]] for pos in numbers_arr])
 
     # Tạo tất cả các trường hợp có thể của các biến không xác định => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
-    prev = None
-    range_length = range(length)
     range_cases = range(1 << length)
-
-    # Check
-    def check():
-        satisfiable = True
-        for i in range_length:
-            if not (c & (1 << i)):
-                x, y = unknowns_pos[i]
-                for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                    xx, yy = x + dx, y + dy 
-                    if (xx, yy) in numbers_arr:
-                        number_cell = numbers_arr[(xx, yy)]
-                        count = 0
-                        for ddx, ddy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                            xxx, yyy = xx + ddx, yy + ddy
-                            if (xxx, yyy) in unknowns_dict:
-                                count += 1 if c & (1 << unknowns_dict[(xxx, yyy)]) else 0
-                                if count > number_cell:
-                                    break
-                        if count != number_cell:
-                            satisfiable = False
-                            break
-                    if not satisfiable:
-                        satisfiable = False
-                        break
-            if not satisfiable:
-                satisfiable = False
-                break
-        if satisfiable:
-            return True
-        return False
 
     for c in range_cases:
 
-        if c % 1000000 == 0:
+        if (c) % 1000000 == 0:
             print(f"Case {c}")
 
         # Nếu sum_số > 8*num_traps thì bỏ qua
         if numbers_sum > (c.bit_count() << 3):
-            prev = c
             continue
 
-        # Lấy những bits thay đổi, nếu prev = None thì tất cả bits_changed là 0
-        bits_changed = c ^ prev if prev is not None else c
-        prev = c
-
-
         # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
-        satisfiable = True
-        for i in range_length:
-            # Với mỗi bit thay đổi, kiểm tra xem nó có thỏa mãn điều kiện của số không
-            if bits_changed & (1 << i):
-                x, y = unknowns_pos[i] # Lấy vị trí của biến unknown thứ i đã thay đổi
-                
-                # Với mỗi vị trí xung quanh của biến unknown thứ i
-                for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                    xx, yy = x + dx, y + dy 
-                    if (xx, yy) in numbers_arr: # Nếu vị trí xung quanh là số 
-                        number_cell = numbers_arr[(xx, yy)]
-                        count = 0 # Đếm số lượng biến xung quanh đã được xác định (giả sử là "T")
-                        
-                        # Với mỗi vị trí xung quanh của số
-                        for ddx, ddy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                            xxx, yyy = xx + ddx, yy + ddy # Lấy vị trí xung quanh của số
-                            if (xxx, yyy) in unknowns_dict: # Nếu vị trí xung quanh là biến unknown
-                                # Nếu biến unknown đó là "T" thì tăng count lên 1
-                                count += 1 if c & (1 << unknowns_dict[(xxx, yyy)]) else 0 
-                                if count > number_cell:
-                                    break
-                        # Nếu số lượng trap khác số
-                        if count != number_cell:
-                            satisfiable = False
-                            break
-                    # Nếu không thỏa mãn điều kiện của số thì thoát
-                    if not satisfiable:
-                        satisfiable = False
-                        break
-
-                # Nếu không thỏa mãn điều kiện của số thì thoát
-                if not satisfiable:
-                    satisfiable = False
-                    break
-    
-        if satisfiable:
-            for i in range_length:
-                if not (bits_changed & (1 << i)):
-                    x, y = unknowns_pos[i]
-                    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                        xx, yy = x + dx, y + dy 
-                        if (xx, yy) in numbers_arr:
-                            number_cell = numbers_arr[(xx, yy)]
-                            count = 0
-                            for ddx, ddy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-                                xxx, yyy = xx + ddx, yy + ddy
-                                if (xxx, yyy) in unknowns_dict:
-                                    count += 1 if c & (1 << unknowns_dict[(xxx, yyy)]) else 0
-                                    if count > number_cell:
-                                        break
-                            if count != number_cell:
-                                satisfiable = False
-                                break
-                        if not satisfiable:
-                            satisfiable = False
-                            break
-            if satisfiable:
-                case = [bool(c & (1 << i)) for i in range(length)]
-                print(f"Satisfiable (No.{c}): {case}")
-                return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
+        if is_valid(c, numbers_arr, unknowns_dict):
+            case = [bool(c & (1 << i)) for i in range(length)]
+            print(f"Satisfiable (No.{c}): {case}")
+            return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
 
 
     return None
