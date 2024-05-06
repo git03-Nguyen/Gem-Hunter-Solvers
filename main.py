@@ -96,12 +96,12 @@ if __name__ == "__main__":
     #     print(f"Error: {e}")
 
     # Testing
-    run(["", "pysat", "5x5", "True"])
+    # run(["", "pysat", "4x4", "True"])
     # run(["", "pysat", "9x9", "True"])
 
+    # run(["", "bruteforce", "9x9", "True"])
+    run(["", "bruteforce", "5x5", "True"])
     run(["", "bruteforce", "4x4", "True"])
-    # run(["", "bruteforce", "5x5", "True"])
-    # run(["", "bruteforce", "4x4", "True"])
 
     # Profiling
     # profile()

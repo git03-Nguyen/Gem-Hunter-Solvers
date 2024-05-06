@@ -4,3 +4,7 @@
 def solve_by_backtracking(KB):
     raise NotImplementedError("Backtracking is not implemented")
 
+
+
+def backtrack():
+    pass

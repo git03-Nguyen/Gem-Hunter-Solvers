@@ -2,37 +2,40 @@
 
 from modules.utils import padding, to_1D
 
-# ---------------------------------------------
-# Check
-def is_valid(case, numbers_dict, numbers_around_dict, bit_masks_dict):
-    for (x, y) in numbers_around_dict.keys():
-        num = numbers_dict[(x, y)]
-        count = 0
-        for xx, yy in numbers_around_dict[(x, y)]: 
-            if case & bit_masks_dict[(xx, yy)]:
-                count += 1
-                if count > num:
-                    return False
-        if count != num:
+def is_valid(KB, case, empties_dict):
+    for clause in KB:
+        is_clause_true = False
+        for literal in clause:
+            if literal in empties_dict:
+                if case & (1 << empties_dict[literal]):
+                    is_clause_true = True
+                    break
+            elif -literal in empties_dict:
+                if not case & (1 << empties_dict[-literal]):
+                    is_clause_true = True
+                    break
+        if not is_clause_true:
             return False
     return True
-# ---------------------------------------------
-def loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end):
-    length = len(unknowns)
-    bit_masks_dict = {(x, y): 1 << i for i, (x, y) in enumerate(unknowns_dict.keys())}
-    numbers_around_dict = {}
-    for (x, y) in numbers_dict.keys():
-        numbers_around_dict[(x, y)] = set()
-        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
-            xx = x + dx
-            yy = y + dy
-            if (xx, yy) in unknowns_dict.keys():
-                numbers_around_dict[(x, y)].add((xx, yy))
+
+# Giải bằng bruteforce
+def solve_by_bruteforce(KB, empties, numbers):
+    # true_case = 3219758312 # for testing
+
+    numbers_sum = sum([numbers[pos] for pos in numbers.keys()])
+
+    empties_list = list(empties)
+    empties_dict = {empties_list[i]: i for i in range(len(empties_list))}
+
+    # Tạo tất cả các trường hợp có thể của các biến không xác định 
+    # => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
+    length = len(empties)
+    start = 0
+    end = 1 << length # 2^length
 
     for c in range(start, end):
 
-        if c % 1000000 == 0:
-            if c > 0:
+        if c % 1000000 == 0 and c > 0:
                 print(f"Case {c}")
 
         # Nếu sum_số > 8*num_traps thì bỏ qua
@@ -40,42 +43,88 @@ def loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end):
             continue
 
         # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
-        if is_valid(c, numbers_dict, numbers_around_dict, bit_masks_dict):
+        if is_valid(KB, c, empties_dict):
             case = [bool(c & (1 << i)) for i in range(length)]
             print(f"Satisfiable (No.{c}): {case}")
-            return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
-
+            model = [empties_list[i] if case[i] else -empties_list[i] for i in range(length)]
+            return model
+    
     return None
 
-# Giải bằng bruteforce
-def solve_by_bruteforce(matrix):
-    # true_case = 3219758312 # for testing
+# # ---------------------------------------------
+# # Check
+# def is_valid(case, numbers_dict, numbers_around_dict, bit_masks_dict):
+#     for (x, y) in numbers_around_dict.keys():
+#         num = numbers_dict[(x, y)]
+#         count = 0
+#         for xx, yy in numbers_around_dict[(x, y)]: 
+#             if case & bit_masks_dict[(xx, yy)]:
+#                 count += 1
+#                 if count > num:
+#                     return False
+#         if count != num:
+#             return False
+#     return True
+# # ---------------------------------------------
+# def loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end):
+#     length = len(unknowns)
+#     bit_masks_dict = {(x, y): 1 << i for i, (x, y) in enumerate(unknowns_dict.keys())}
+#     numbers_around_dict = {}
+#     for (x, y) in numbers_dict.keys():
+#         numbers_around_dict[(x, y)] = set()
+#         for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+#             xx = x + dx
+#             yy = y + dy
+#             if (xx, yy) in unknowns_dict.keys():
+#                 numbers_around_dict[(x, y)].add((xx, yy))
 
-    matrix = padding(matrix)
+#     for c in range(start, end):
 
-    # Tìm tất cả các biến không xác định
-    n = len(matrix)
-    m = len(matrix[0])
-    unknowns = []
-    unknowns_pos = []
-    for i in range(1, n - 1):
-        for j in range(1, m - 1):
-            if matrix[i][j] is None:
-                unknowns.append(to_1D((i - 1, j - 1), m - 2))
-                unknowns_pos.append((i, j))
+#         if c % 1000000 == 0:
+#             if c > 0:
+#                 print(f"Case {c}")
+
+#         # Nếu sum_số > 8*num_traps thì bỏ qua
+#         if numbers_sum > (c.bit_count() << 3):
+#             continue
+
+#         # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
+#         if is_valid(c, numbers_dict, numbers_around_dict, bit_masks_dict):
+#             case = [bool(c & (1 << i)) for i in range(length)]
+#             print(f"Satisfiable (No.{c}): {case}")
+#             return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
+
+#     return None
+
+# # Giải bằng bruteforce
+# def solve_by_bruteforce(matrix):
+#     # true_case = 3219758312 # for testing
+
+#     matrix = padding(matrix)
+
+#     # Tìm tất cả các biến không xác định
+#     n = len(matrix)
+#     m = len(matrix[0])
+#     unknowns = []
+#     unknowns_pos = []
+#     for i in range(1, n - 1):
+#         for j in range(1, m - 1):
+#             if matrix[i][j] is None:
+#                 unknowns.append(to_1D((i - 1, j - 1), m - 2))
+#                 unknowns_pos.append((i, j))
     
-    unknowns_dict = {unknowns_pos[i]: i for i in range(len(unknowns_pos))}
-    print(f"Unknowns ({len(unknowns)}) : {unknowns}")
+#     unknowns_dict = {unknowns_pos[i]: i for i in range(len(unknowns_pos))}
+#     print(f"Unknowns ({len(unknowns)}) : {unknowns}")
 
-    numbers_dict = [(i, j) for i in range(n) for j in range(m) if type(matrix[i][j]) == int]
-    numbers_dict = {pos: matrix[pos[0]][pos[1]] for pos in numbers_dict}
-    numbers_sum = sum([matrix[pos[0]][pos[1]] for pos in numbers_dict])
+#     numbers_dict = [(i, j) for i in range(n) for j in range(m) if type(matrix[i][j]) == int]
+#     numbers_dict = {pos: matrix[pos[0]][pos[1]] for pos in numbers_dict}
+#     numbers_sum = sum([matrix[pos[0]][pos[1]] for pos in numbers_dict])
 
-    # Tạo tất cả các trường hợp có thể của các biến không xác định 
-    # => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
-    length = len(unknowns)
-    start = 0
-    end = 1 << length
-    model = loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end)
+#     # Tạo tất cả các trường hợp có thể của các biến không xác định 
+#     # => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
+#     length = len(unknowns)
+#     start = 0
+#     end = 1 << length
+#     model = loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end)
     
-    return model
+#     return model

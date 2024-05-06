@@ -8,7 +8,7 @@
 # - solve_by_bruteforce(KB): Giải bài toán bằng Bruteforce
 
 from modules.cnf import get_CNF_clauses
-from modules.utils import edit_matrix
+from modules.utils import edit_matrix, padding, to_1D
 
 from modules.pysat_solver import solve_by_pysat
 from modules.dpll_solver import solve_by_dpll
@@ -30,10 +30,27 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
             - algorithm: thuật toán giải (pysat, dpll, backtracking, bruteforce)
 
         Output:
-            - solution: ma trận kết quả
+            - model: model của SAT Solver hoặc None nếu không có lời giải
+            - measured_time: thời gian thực thi (ms)
     '''
     KB = get_CNF_clauses(matrix)
-    print(f"CNFs length: {len(KB)}")
+    print(f"CNFs {len(KB)}: {KB}")
+
+    pad_matrix = padding(matrix)
+    n, m = len(pad_matrix), len(pad_matrix[0])
+
+    empties = set()
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            if pad_matrix[i][j] is None:
+                empties.add(to_1D((i - 1, j - 1), m - 2))
+    print(f"Empties: {len(empties)}: {empties}")
+
+    numbers = {}
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            if type(pad_matrix[i][j]) is int:
+                numbers[(i - 1, j - 1)] = pad_matrix[i][j]
 
     func, args = None, None
     if algorithm == "pysat":
@@ -47,7 +64,7 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
         args = [KB]
     elif algorithm == "bruteforce":
         func = solve_by_bruteforce
-        args = [matrix]
+        args = [KB, empties, numbers]
     else:
         raise ValueError("Invalid algorithm")
 
