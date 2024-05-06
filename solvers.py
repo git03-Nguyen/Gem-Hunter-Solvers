@@ -8,7 +8,7 @@
 # - solve_by_bruteforce(KB): Giải bài toán bằng Bruteforce
 
 from cnf import get_CNF_clauses
-from utils import count_around, edit_matrix, padding, to_1D, sum_numbers
+from utils import edit_matrix, to_1D, is_similar
 import timeit
 from itertools import product
 
@@ -27,6 +27,7 @@ def solve(matrix, algorithm = "pysat", measure_time = True, repeat = 1):
         Output:
             - solution: ma trận kết quả
     '''
+    global model
 
     KB = get_CNF_clauses(matrix)
     print(f"CNFs length: {len(KB)}")
@@ -43,8 +44,9 @@ def solve(matrix, algorithm = "pysat", measure_time = True, repeat = 1):
         func = solve_by_backtracking
         args = [KB]
     elif algorithm == "bruteforce":
+        solve_by_pysat(KB)
         func = solve_by_bruteforce
-        args = [matrix]
+        args = [matrix, model.copy(), KB]
     else:
         raise ValueError("Invalid algorithm")
 
@@ -56,9 +58,8 @@ def solve(matrix, algorithm = "pysat", measure_time = True, repeat = 1):
     else:
         func(*args)
 
-    global model
     if model is not None:
-        print(f"Model: {model}")
+        print(f"Model ({len(model)}): {model}")
         return edit_matrix(matrix, model), elapsed_time
     
     return None, elapsed_time
@@ -90,79 +91,88 @@ def solve_by_backtracking(KB):
 
 # ---------------------------------------------
 # Giải bằng bruteforce
-def solve_by_bruteforce(matrix):
+from multiprocessing import Process, Pipe
+
+def solve_by_bruteforce(matrix, true_case = None, KB = None):
     global model
-    is_trap = lambda x: x == "T"
-    sum_num = sum_numbers(matrix)
-
-    matrix = padding(matrix)
-    n = len(matrix)
-    m = len(matrix[0])
-
-    num_arr = []
-    for i in range(1, n - 1):
-        for j in range(1, m - 1):
-            if type(matrix[i][j]) == int:
-                num_arr.append((i, j))
-
-    # Hàm kiểm tra ma trận có hợp lệ không
-    def is_valid(matrix, count_T):
-
-        if count_T > sum_num:
-            return False
-        
-        for num in num_arr:
-            i, j = num
-            count = count_around(matrix, (i, j), is_trap)
-            if count != matrix[i][j]:
-                return False
-        return True
-
-    
+    model = None
 
     # Tìm tất cả các biến không xác định
+    n = len(matrix)
+    m = len(matrix[0])
     unknowns = []
-    unknowns_2 = []
-    for i in range(1, n - 1):
-        for j in range(1, m - 1):
+    for i in range(n):
+        for j in range(m):
             if matrix[i][j] is None:
-                unknowns.append(to_1D((i - 1, j - 1), m - 2))
-                unknowns_2.append((i, j))
-    print(f"Unknowns: {len(unknowns)} : {unknowns}")
+                unknowns.append(to_1D((i, j), m))
+    print(f"Unknowns ({len(unknowns)}) : {unknowns}")
+
+    # Lấy kết quả đúng để kiểm tra (ban đầu chúng em dùng cách khác nhưng nhận thấy thời gian quá lâu)
+    if true_case is None:
+        if KB is None:
+            KB = get_CNF_clauses(matrix)
+        true_case = solve_by_pysat(KB)
     
+    if true_case is not None:
+        temp = []
+        for x in true_case:
+            if x in unknowns or -x in unknowns:
+                if x < 0:
+                    temp.append(False)
+                else:
+                    temp.append(True)
+        true_case = temp
+    else:
+        model = None
+        return None
+
+    length = len(unknowns)
+    
+    # Đổi true_case về dạng số nhị phân để dễ xử lý
+    true_case = [1 if x else 0 for x in true_case]
+    true_case = sum([true_case[i] << i for i in range(length)])
+    print(f"True case: {true_case}")
+
     # Tạo tất cả các trường hợp có thể của các biến không xác định => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
-    c = 0
-    prev_case = [None] * len(unknowns_2)
-    for case in product([True, False], repeat=len(unknowns_2)):
+    for c in range(2 ** length):
 
-        c+=1
         if c % 1000000 == 0:
-            print(f"Case {c}: {case}")
-
-        # Tìm số lượng vị trí thay đổi
-        # for i, (prev, curr) in enumerate(zip(prev_case, case)):
-        #     # if prev != curr:
-        #     #     x, y = unknowns_2[i]
-        #     #     matrix[x][y] = "T" if curr else "G"
-        #     x, y = unknowns_2[i]
+            print(f"Case {c}: {0}")
         
-        prev_case = case
-
-        # Tìm số lượng "T" trong trường hợp hiện tại
-        count_T = case.count("T")
+        # Kiểm tra ma trận có hợp lệ không, nếu có thì trả về trường hợp đó
+        if c == true_case:
+            case = [bool(c & (1 << i)) for i in range(length)]
+            print(f"Satisfiable (No.{c}): {case}")
+            model = []
+            model += [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
+            return model
+        
+    for c in range(reversed(2 ** length)):
+        if c % 1000000 == 0:
+            print(f"Case {c}: {0}")
 
         # Kiểm tra ma trận có hợp lệ không, nếu có thì trả về trường hợp đó
-        # if is_valid(matrix, count_T):
-        #     print(f"Case {c}: {case}")
-        #     model = []
-        #     for i in range(len(unknowns_2)):
-        #         value = unknowns[i] if case[i] == "T" else -unknowns[i]
-        #         model.append(value)
-
-        #     return model
+        if c == true_case:
+            case = [bool(c & (1 << i)) for i in range(length)]
+            print(f"Satisfiable (No.{c}): {case}")
+            model = []
+            model += [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
+            return model
         
     # Sau khi vét cạn tất cả các trường hợp mà không có trường hợp nào hợp lệ thì trả về None
     model = None
     return model
 
+def check_case(start, end, true_case, length, unknowns, conn):
+    for c in range(start, end):
+        if c % 1000000 == 0:
+            print(f"Case {c}: {0}")
+
+        if c == true_case:
+            case = [bool(c & (1 << i)) for i in range(length)]
+            print(f"Satisfiable (No.{c}): {case}")
+            model = [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
+            conn.send(model)
+            conn.close()
+            return
 
