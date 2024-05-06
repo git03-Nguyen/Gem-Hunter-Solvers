@@ -80,23 +80,28 @@ def solve_by_backtracking(KB):
 
 # ---------------------------------------------
 # Check
-def is_valid(case, numbers_arr, unknowns_dict):
+def is_valid(case, numbers_arr, unknowns_dict, unknowns_set, directions, bit_masks_dict):
     for (x, y) in numbers_arr:
         num = numbers_arr[(x, y)]
         count = 0
-        for dx, dy in [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]]:
-            xx, yy = x + dx, y + dy
-            if (xx, yy) in unknowns_dict:
-                if case & (1 << unknowns_dict[(xx, yy)]):
+        for dx, dy in directions:
+            xx = x + dx
+            yy = y + dy
+            if (xx, yy) in unknowns_set:
+                if case & bit_masks_dict[(xx, yy)]:
                     count += 1
-            if count > num:
-                return False
+                    if count > num:
+                        return False
         if count != num:
             return False
     return True
 # ---------------------------------------------
 def loop(unknowns, unknowns_dict, numbers_arr, numbers_sum, start, end):
     length = len(unknowns)
+    directions = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]]
+    unknowns_set = set(unknowns_dict.keys())
+    bit_masks_dict = {(x, y): 1 << i for i, (x, y) in enumerate(unknowns_dict.keys())}
+
     for c in range(start, end):
 
         if (c) % 1000000 == 0:
@@ -107,7 +112,7 @@ def loop(unknowns, unknowns_dict, numbers_arr, numbers_sum, start, end):
             continue
 
         # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
-        if is_valid(c, numbers_arr, unknowns_dict):
+        if is_valid(c, numbers_arr, unknowns_dict, unknowns_set, directions, bit_masks_dict):
             case = [bool(c & (1 << i)) for i in range(length)]
             print(f"Satisfiable (No.{c}): {case}")
             return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
