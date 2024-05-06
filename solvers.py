@@ -114,8 +114,9 @@ def loop(unknowns, unknowns_dict, numbers_dict, numbers_sum, start, end):
 
     for c in range(start, end):
 
-        if (c) % 1000000 == 0:
-            print(f"Case {c}")
+        if c % 100000000 == 0:
+            if c > 0:
+                print(f"Case {c}")
 
         # Nếu sum_số > 8*num_traps thì bỏ qua
         if numbers_sum > (c.bit_count() << 3):
