@@ -30,16 +30,6 @@ def get_around(matrix, pos, condition = None):
                 around.append([r + i, c + j])
     return around
 
-# Đếm số lượng ô xung quanh ô pos mà thỏa mãn điều kiện condition
-def count_around(matrix, pos, condition):
-    [r, c] = pos
-    count = 0
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            if condition(matrix[r + i][c + j]):
-                count += 1
-    return count
-
 # Chuyển từ vị trí (r, c) trong ma trận 2 chiều thành vị trí trong ma trận 1 chiều
 def to_1D(pos, num_cols):
     return pos[0]*num_cols + pos[1] + 1

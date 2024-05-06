@@ -8,7 +8,7 @@
 # - solve_by_bruteforce(KB): Giải bài toán bằng Bruteforce
 
 from cnf import get_CNF_clauses
-from utils import count_around, edit_matrix, padding, to_1D
+from utils import edit_matrix, padding, to_1D
 import timeit
 
 model = None
@@ -94,8 +94,25 @@ def is_valid(case, numbers_arr, unknowns_dict):
         if count != num:
             return False
     return True
+# ---------------------------------------------
+def loop(unknowns, unknowns_dict, numbers_arr, numbers_sum, start, end):
+    length = len(unknowns)
+    for c in range(start, end):
 
+        if (c) % 1000000 == 0:
+            print(f"Case {c}")
 
+        # Nếu sum_số > 8*num_traps thì bỏ qua
+        if numbers_sum > (c.bit_count() << 3):
+            continue
+
+        # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
+        if is_valid(c, numbers_arr, unknowns_dict):
+            case = [bool(c & (1 << i)) for i in range(length)]
+            print(f"Satisfiable (No.{c}): {case}")
+            return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
+
+    return None
 
 # Giải bằng bruteforce
 def solve_by_bruteforce(matrix):
@@ -117,32 +134,16 @@ def solve_by_bruteforce(matrix):
     unknowns_dict = {unknowns_pos[i]: i for i in range(len(unknowns_pos))}
     print(f"Unknowns ({len(unknowns)}) : {unknowns}")
 
-    length = len(unknowns)
-
     numbers_arr = [(i, j) for i in range(n) for j in range(m) if type(matrix[i][j]) == int]
     numbers_arr = {pos: matrix[pos[0]][pos[1]] for pos in numbers_arr}
     numbers_sum = sum([matrix[pos[0]][pos[1]] for pos in numbers_arr])
 
-    # Tạo tất cả các trường hợp có thể của các biến không xác định => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
-    range_cases = range(1 << length)
-
-    for c in range_cases:
-
-        if (c) % 1000000 == 0:
-            print(f"Case {c}")
-
-        # Nếu sum_số > 8*num_traps thì bỏ qua
-        if numbers_sum > (c.bit_count() << 3):
-            continue
-
-        # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
-        if is_valid(c, numbers_arr, unknowns_dict):
-            case = [bool(c & (1 << i)) for i in range(length)]
-            print(f"Satisfiable (No.{c}): {case}")
-            return [unknowns[i] if case[i] else -unknowns[i] for i in range(length)]
-
-
-    return None
+    # Tạo tất cả các trường hợp có thể của các biến không xác định 
+    # => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
+    length = len(unknowns)
+    model = loop(unknowns, unknowns_dict, numbers_arr, numbers_sum, 0, 1 << length)
+    
+    return model
 
     
 
