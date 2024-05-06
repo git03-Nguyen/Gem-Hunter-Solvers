@@ -1,6 +1,6 @@
 # Description: Tạo câu mệnh đề CNF từ ma trận Gem Hunter
 
-from utils import padding, get_around, to_1D, subsets_of
+from modules.utils import padding, get_around, to_1D, subsets_of
 
 # ---------------------------------------------
 # "Có ít nhất một ..." <=> A OR B OR C OR ...
