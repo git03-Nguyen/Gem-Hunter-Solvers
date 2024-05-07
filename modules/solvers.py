@@ -60,10 +60,10 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
         args = [KB]
     elif algorithm == "dpll":
         func = solve_by_dpll
-        args = [KB]
+        args = [KB, empties]
     elif algorithm == "backtracking":
         func = solve_by_backtracking
-        args = [KB, empties, numbers]
+        args = [KB, empties]
     elif algorithm == "bruteforce":
         func = solve_by_bruteforce
         args = [KB, empties, numbers]

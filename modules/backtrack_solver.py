@@ -34,7 +34,7 @@ def is_conflict(KB, solution_bits, bits_length, empties_dict, empties_set, bit_m
     return False
 
 # Giải bằng backtracking với DFS: lần lượt gán giá trị cho các ô trống là 0 hoặc 1 (tức là bằng -empties[i] hoặc empties[i]), sau đó kiểm tra xem có conflict không, nếu không thì tiếp tục gán cho ô tiếp theo, nếu có thì quay lui và thử giá trị khác cho ô hiện tại
-def solve_by_backtracking(KB, empties, numbers):
+def solve_by_backtracking(KB, empties):
     
     # Để tối ưu performance, ta sẽ tăng cường sử dụng hash map và bitwise
     length = len(empties)

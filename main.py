@@ -105,7 +105,11 @@ if __name__ == "__main__":
 
     # run(["", "backtracking", "4x4", "True"])
     # run(["", "backtracking", "5x5", "True"])
-    run(["", "backtracking", "9x9", "True"])
+    # run(["", "backtracking", "9x9", "True"])
+
+    # run(["", "dpll", "4x4", "True"])
+    # run(["", "dpll", "5x5", "True"])
+    # run(["", "dpll", "9x9", "True"])
 
     # Profiling
     # profile()
