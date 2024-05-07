@@ -1,7 +1,5 @@
 # Description: Định nghĩa hàm giải bài toán Gem Hunter bằng thuật toán Bruteforce
 
-from modules.utils import padding, to_1D
-
 def is_valid(KB, case, empties_set, literal_bit_masks):
     for clause in KB:
         is_clause_true = False

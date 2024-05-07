@@ -36,7 +36,7 @@ def read_args(argv):
 
     algorithm = argv[1]
     test_case = argv[2]
-    measure_time = argv[3].lower() == "true" if len(argv) > 3 else False
+    measure_time = len(argv) > 3 and argv[3].lower().strip() == "true"
     
     if algorithm not in _ALGORITHMS:
         print(f"Algorithm {algorithm} not found")
@@ -48,7 +48,7 @@ def read_args(argv):
         print(f"Available: {test_cases}")
         return None, None, None
     
-    if argv[3] not in ["True", "False"]:
+    if len(argv) > 3 and measure_time not in [True, False]:
         print(f"Invalid measure_time: {argv[3]}")
         print("Available: True/False")
         return None, None, None
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     # run(["", "bruteforce", "9x9", "True"])
     # run(["", "bruteforce", "5x5", "True"])
-    run(["", "bruteforce", "4x4", "True"])
+    # run(["", "bruteforce", "4x4", "True"])
 
     # Profiling
     # profile()
