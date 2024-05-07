@@ -40,34 +40,36 @@ def solve_by_backtracking(KB, empties, numbers):
     length = len(empties)
     empties_list = list(empties)
     empties_dict = {empties_list[i]: i for i in range(length)}
+    values = {0, 1}
 
     # bit_masks[n] = 00010 tức n là ô trống thứ 2; c & bit_masks[n] trả về bit thứ 2 của c
     bit_masks = {empties_list[i]: 1 << i for i in range(length)}
 
-    numbers_sum = sum([numbers[pos] for pos in numbers.keys()])
-
-    # Hàm đệ quy giải bài toán: sử dụng DFS
+    # Hàm đệ quy giải bài toán: sử dụng DFS và backtracking
     def backtrack(solution_bits, index):
         if index == length:
             return solution_bits
 
-        # Thử gán cho ô trống index giá trị 0
-        if not is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
+        # Gán giá trị cho ô trống thứ index là 0 hoặc 1            
+        for i in values:
+            if i: # Gán giá trị cho ô trống là 1
+                solution_bits |= 1 << index
+                if is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
+                    continue
+            else: # Gán giá trị cho ô trống là 0
+                if is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
+                    continue                
+            
+            # Nếu không conflict thì tiếp tục gán giá trị cho ô trống tiếp theo
             solution_bits = backtrack(solution_bits, index + 1)
             if solution_bits is not None:
                 return solution_bits
-
-        # Thử gán cho ô trống index giá trị 1
-        solution_bits |= 1 << index
-        if not is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
-            solution_bits = backtrack(solution_bits, index + 1)
-            if solution_bits is not None:
-                return solution_bits
-
+            
+        # Nếu không tìm được giá trị thích hợp cho ô trống thứ index thì quay lui
         return None
     
+    # Bắt đầu giải bài toán
     solution_bits = backtrack(0, 0)
-    
     if solution_bits is None:
         return None
     
