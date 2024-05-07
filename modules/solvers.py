@@ -60,7 +60,7 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
         args = [KB]
     elif algorithm == "dpll":
         func = solve_by_dpll
-        args = [KB, empties]
+        args = [KB]
     elif algorithm == "backtracking":
         func = solve_by_backtracking
         args = [KB, empties]
