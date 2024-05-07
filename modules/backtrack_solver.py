@@ -1,30 +1,35 @@
 # Description: Định nghĩa hàm giải bài toán Gem Hunter bằng thuật toán Backtracking
 
-def is_conflict(KB, solution_bits, bits_length, empties_dict, bit_masks, numbers_sum):
-
-    # Nếu sum_số > 8*num_traps thì conflict
-    if numbers_sum > (solution_bits.bit_count() << 3):
-        return True
+def is_conflict(KB, solution_bits, bits_length, empties_dict, empties_set, bit_masks):
 
     # Empties_dict: {pos: index} với pos là vị trí ô trống, index là index của ô trống trong solution
     
     for clause in KB:
         
+        is_clause_true = False
         for literal in clause:
             # Nếu literal không phải là ô trống thì bỏ qua
-            if literal not in empties_dict.keys() and -literal not in empties_dict.keys():
+            if literal not in empties_set and -literal not in empties_set:
+                is_clause_true = True
                 continue
 
-            # Nếu literal là ô trống và chưa được gán giá trị thì bỏ qua
+            # Nếu literal là ô trống và chưa tới lượt gán giá trị thì bỏ qua
             index = empties_dict[literal] if literal > 0 else empties_dict[-literal]
-            if index >= bits_length:
+            if index > bits_length:
+                is_clause_true = True
                 continue
 
             # Nếu literal là ô trống và đã được gán giá trị thì kiểm tra xem có conflict không
             # Conflict xảy ra khi literal là dương và bit tương ứng trong solution_bits bằng 0
             # hoặc literal là âm và bit tương ứng trong solution_bits bằng 1
             if (literal > 0 and not (solution_bits & bit_masks[literal])) or (literal < 0 and (solution_bits & bit_masks[-literal])):
-                return True               
+                is_clause_true = is_clause_true or False
+            else:
+                is_clause_true = True
+                break
+
+        if not is_clause_true:
+            return True
 
     return False
 
@@ -41,33 +46,36 @@ def solve_by_backtracking(KB, empties, numbers):
 
     numbers_sum = sum([numbers[pos] for pos in numbers.keys()])
 
-    # # Hàm đệ quy giải bài toán: sử dụng DFS
-    # def backtrack(solution_bits, assigned_len):
-        
-        
+    # Hàm đệ quy giải bài toán: sử dụng DFS
+    def backtrack(solution_bits, index):
+        if index == length:
+            return solution_bits
 
+        # Thử gán cho ô trống index giá trị 0
+        if not is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
+            solution_bits = backtrack(solution_bits, index + 1)
+            if solution_bits is not None:
+                return solution_bits
 
+        # Thử gán cho ô trống index giá trị 1
+        solution_bits |= 1 << index
+        if not is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
+            solution_bits = backtrack(solution_bits, index + 1)
+            if solution_bits is not None:
+                return solution_bits
 
-
-
-
-    # solution_bits = backtrack(solution_bits, assigned_len)
+        return None
     
-    # if solution_bits is None:
-    #     return None
+    solution_bits = backtrack(0, 0)
     
-    # solution = [bool(solution_bits & (1 << i)) for i in range(length)]
-    # print(f"Backtracking: {solution}")
-    # model = [empties_list[i] if solution[i] else -empties_list[i] for i in range(length)]
-    # return model
+    if solution_bits is None:
+        return None
+    
+    solution = [bool(solution_bits & (1 << i)) for i in range(length)]
+    print(f"Backtracking (No.{solution_bits}): {solution}")
+    model = [empties_list[i] if solution[i] else -empties_list[i] for i in range(length)]
+    return model
 
-    # test
-    a = is_conflict(KB, 0b1010, 4, empties_dict, bit_masks, numbers_sum)
-    print(a)
-    print(empties_dict)
-
-
-    return None
 
 
             
