@@ -30,11 +30,11 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
             - algorithm: thuật toán giải (pysat, dpll, backtracking, bruteforce)
 
         Output:
-            - model: model của SAT Solver hoặc None nếu không có lời giải
+            - solution: model của SAT Solver hoặc None nếu không có lời giải
             - measured_time: thời gian thực thi (ms)
     '''
     KB = get_CNF_clauses(matrix)
-    print(f"CNFs {len(KB)}: {KB}")
+    print(f"CNFs ({len(KB)}): {KB[:min(len(KB), 10)]}...")
 
     pad_matrix = padding(matrix)
     n, m = len(pad_matrix), len(pad_matrix[0])
@@ -44,13 +44,15 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
         for j in range(1, m - 1):
             if pad_matrix[i][j] is None:
                 empties.add(to_1D((i - 1, j - 1), m - 2))
-    print(f"Empties: {len(empties)}: {empties}")
+    print(f"Empties ({len(empties)}): {empties}")
 
     numbers = {}
     for i in range(1, n - 1):
         for j in range(1, m - 1):
             if type(pad_matrix[i][j]) is int:
                 numbers[(i - 1, j - 1)] = pad_matrix[i][j]
+    
+
 
     func, args = None, None
     if algorithm == "pysat":
@@ -61,7 +63,7 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
         args = [KB]
     elif algorithm == "backtracking":
         func = solve_by_backtracking
-        args = [KB]
+        args = [KB, empties, numbers]
     elif algorithm == "bruteforce":
         func = solve_by_bruteforce
         args = [KB, empties, numbers]
@@ -72,15 +74,15 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
     
     if measure_time:
         start = timeit.default_timer()
-        model = func(*args)
+        solution = func(*args)
         end = timeit.default_timer()
         measured_time = (end - start) * 1000
     else:
-        model = func(*args)
+        solution = func(*args)
 
-    if model is not None:
-        print(f"Model ({len(model)}): {model}")
-        return edit_matrix(matrix, model), measured_time
+    if solution is not None:
+        print(f"Solution ({len(solution)}): {solution}")
+        return edit_matrix(matrix, solution), measured_time
     
     return None, measured_time
 
