@@ -74,7 +74,6 @@ def solve_by_backtracking(KB, empties):
         return None
     
     solution = [bool(solution_bits & (1 << i)) for i in range(length)]
-    print(f"Backtracking (No.{solution_bits}): {solution}")
     model = [empties_list[i] if solution[i] else -empties_list[i] for i in range(length)]
     return model
 

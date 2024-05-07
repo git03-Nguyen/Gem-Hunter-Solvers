@@ -1,7 +1,7 @@
 # Description: File chính chứa hàm main, thực thi chương trình
 
 import sys
-from modules.inout import input_matrix, output_matrix, print_matrix
+from modules.inout import input_matrix, output_matrix, print_matrix, print_2matrix
 from modules.solvers import solve
 
 # Danh sách thuật toán
@@ -28,15 +28,13 @@ def read_args(argv):
     test_cases = ", ".join(_TEST_CASES.keys())
 
     if len(argv) < 3:
-        print("\nUsage: python main.py <algorithm> <test_case> [measure_time]")
+        print("\nUsage: python main.py <algorithm> <test_case>")
         print(f"- algorithm: {algorithms}")
         print(f"- test_case: {test_cases}")
-        print("- measure_time: True/False (default: False)")
         return None, None
 
     algorithm = argv[1]
     test_case = argv[2]
-    measure_time = len(argv) > 3 and argv[3].lower().strip() == "true"
     
     if algorithm not in _ALGORITHMS:
         print(f"Algorithm {algorithm} not found")
@@ -48,71 +46,70 @@ def read_args(argv):
         print(f"Available: {test_cases}")
         return None, None, None
     
-    if len(argv) > 3 and measure_time not in [True, False]:
-        print(f"Invalid measure_time: {argv[3]}")
-        print("Available: True/False")
-        return None, None, None
-    
-    return algorithm, test_case, measure_time
+    return algorithm, test_case
 
 
 # ---------------------------------------------
 # --------------- MAIN FUNCTION ---------------
 # ---------------------------------------------
 def run(argv):
-    algorithm, test_case, measure_time = read_args(argv)
+    algorithm, test_case = read_args(argv)
     if test_case is None or algorithm is None: return
 
+    # Đọc file input và output
     input_file = _TEST_CASES[test_case] + "/input.txt"
     output_file = _TEST_CASES[test_case] + "/output.txt"
 
     matrix = input_matrix(input_file); 
-    print(f"PROBLEM:\n{print_matrix(matrix)}")
+    copy_matrix = [row.copy() for row in matrix]
 
-    solution, elapsed_time = solve(matrix, algorithm, measure_time)
+    # Giải bài toán
+    solution, elapsed_time = solve(matrix, algorithm)
     
+    # Xuất kết quả
     if solution is not None:
         output_matrix(solution, output_file);
-        print(f"\nSOLUTION:\n{print_matrix(solution)}")
     else:
-        output_matrix([["Unsolvable"]], output_file);
-        print("NO SOLUTION FOUND!")
+        output_matrix([[""]], output_file);
 
-    if measure_time:
-        print(f"Elapsed time: {elapsed_time:.4f} ms")
+    # In ra console
+    if solution is not None:
+        print(f"{print_2matrix(copy_matrix, solution)}")
+    else:
+        print(f"{print_matrix(copy_matrix)}")
+        print("No solution found")
+
+    print(f"{algorithm.upper()}: {test_case.lower()}")
+    print(f"Elapsed time: {elapsed_time:.4f} ms. Exitting...")
 
 
-# ---------------------------------------------
-# --------------- PROFILING FUNCTION ----------
-# ---------------------------------------------
-def profile():
-    raise NotImplementedError("Not implemented yet")
 
 # ---------------------------------------------
 if __name__ == "__main__":
-    # try:
-    #     run(sys.argv)
-    # except Exception as e:
-    #     print(f"Error: {e}")
+    try:
+        run(sys.argv)
+    except Exception as e:
+        print(f"Error: {e}")
 
     # Testing
-    # run(["", "pysat", "4x4", "True"])
-    # run(["", "pysat", "9x9", "True"])
+    # run(["", "pysat", "4x4"])
+    # run(["", "pysat", "5x5"])
+    # run(["", "pysat", "9x9"])
 
-    # run(["", "bruteforce", "9x9", "True"])
-    # run(["", "bruteforce", "5x5", "True"])
-    # run(["", "bruteforce", "4x4", "True"])
 
-    # run(["", "backtracking", "4x4", "True"])
-    # run(["", "backtracking", "5x5", "True"])
-    # run(["", "backtracking", "9x9", "True"])
+    # run(["", "dpll", "4x4"])
+    # run(["", "dpll", "5x5"])
+    # run(["", "dpll", "9x9"])
 
-    run(["", "dpll", "4x4", "True"])
-    # run(["", "dpll", "5x5", "True"])
-    # run(["", "dpll", "9x9", "True"])
+    # run(["", "backtracking", "4x4"])
+    # run(["", "backtracking", "5x5"])
+    # run(["", "backtracking", "9x9"])
 
-    # Profiling
-    # profile()
+    # run(["", "bruteforce", "5x5"])
+    # run(["", "bruteforce", "4x4"])
+    # run(["", "bruteforce", "9x9"])
+
+
 
     # py -m cProfile -s cumtime main.py 
     # py -m cProfile -s ncalls main.py 

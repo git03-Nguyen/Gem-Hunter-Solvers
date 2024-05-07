@@ -56,5 +56,12 @@ def print_matrix(matrix):
         str_matrix += ", ".join([str(x) if x is not None else "_" for x in row]) + "\n"
     return str_matrix
 
+# Hàm in 2 ma trận cùng kích thước lên 2 cột
+def print_2matrix(matrix1, matrix2):
+    str_matrix = ""
+    for r1, r2 in zip(matrix1, matrix2):
+        str_matrix += ", ".join([str(x) if x is not None else "_" for x in r1]) + "  |  " + ", ".join([str(x) if x is not None else "_" for x in r2]) + "\n"
+    return str_matrix
+
         
 

@@ -52,7 +52,7 @@ def is_similar(list_1, list_2):
 
 # ---------------------------------------------
 # Hàm chỉnh sửa ma trận kết quả
-def edit_matrix(matrix, model):
+def update_matrix(matrix, model):
     '''Chỉnh sửa ma trận kết quả từ model của SAT Solver:\\
           Ô nào False thì là "G", True thì là "T".
     '''
@@ -65,4 +65,19 @@ def edit_matrix(matrix, model):
                 matrix[i][j] = "T" if index in model else "G"
                 
     return matrix
+
+# ---------------------------------------------
+# Hàm hash 1 mảng số nguyên thành 1 số nguyên: 
+# Dương -> 0b1, Âm -> 0b0
+# VD: [-1, -2, -3] -> 0b000 -> 0 và [1, 2, 3] -> 0b111 -> 7
+def hash_model(model):
+    '''Hash model thành một số nguyên:\\
+          True -> 1, False -> 0.
+    '''
+    num = 0
+    for i in range(len(model)):
+        if model[i] > 0:
+            num |= 1 << i
+            
+    return num
 

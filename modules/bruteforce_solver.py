@@ -34,7 +34,7 @@ def solve_by_bruteforce(KB, empties, numbers):
     for c in range(start, end):
 
         if c % 10000000 == 0 and c > 0:
-                print(f"Case {c}")
+                print(f"Processing to case {c}...")
 
         # Nếu sum_số > 8*num_traps thì bỏ qua
         if numbers_sum > (c.bit_count() << 3):
@@ -43,7 +43,6 @@ def solve_by_bruteforce(KB, empties, numbers):
         # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
         if is_valid(KB, c, empties, bit_masks):
             case = [bool(c & (1 << i)) for i in range(length)]
-            print(f"Bruteforce (No.{c}): {case}")
             model = [empties_list[i] if case[i] else -empties_list[i] for i in range(length)]
             return model
     

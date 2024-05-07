@@ -8,7 +8,7 @@
 # - solve_by_bruteforce(KB): Giải bài toán bằng Bruteforce
 
 from modules.cnf import get_CNF_clauses
-from modules.utils import edit_matrix, padding, to_1D
+from modules.utils import update_matrix, padding, to_1D, hash_model
 
 from modules.pysat_solver import solve_by_pysat
 from modules.dpll_solver import solve_by_dpll
@@ -21,7 +21,7 @@ import timeit
 # Hàm giải bài toán Gem Hunter
 # Input: ma trận Gem Hunter, thuật toán giải
 # Output: model của SAT Solver hoặc None nếu không có lời giải
-def solve(matrix, algorithm = "pysat", measure_time = False):
+def solve(matrix, algorithm = "pysat", measure_time = True):
     '''
         Giải bài toán Gem Hunter bằng các thuật toán SAT Solvers khác nhau.
         
@@ -33,8 +33,10 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
             - solution: model của SAT Solver hoặc None nếu không có lời giải
             - measured_time: thời gian thực thi (ms)
     '''
+    print()
+
     KB = get_CNF_clauses(matrix)
-    print(f"CNFs ({len(KB)}): {KB[:min(len(KB), 10)]}...")
+    print(f"- {len(KB)} CNFs: {KB[:min(len(KB), 8)]}...")
 
     pad_matrix = padding(matrix)
     n, m = len(pad_matrix), len(pad_matrix[0])
@@ -44,7 +46,7 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
         for j in range(1, m - 1):
             if pad_matrix[i][j] is None:
                 empties.add(to_1D((i - 1, j - 1), m - 2))
-    print(f"Empties ({len(empties)}): {empties}")
+    print(f"- {len(empties)} empty cells (): {list(empties)[:min(len(empties), 15)]}...")
 
     numbers = {}
     for i in range(1, n - 1):
@@ -74,15 +76,18 @@ def solve(matrix, algorithm = "pysat", measure_time = False):
     
     if measure_time:
         start = timeit.default_timer()
-        solution = func(*args)
+        model = func(*args)
         end = timeit.default_timer()
         measured_time = (end - start) * 1000
     else:
-        solution = func(*args)
+        model = func(*args)
 
-    if solution is not None:
-        print(f"Solution ({len(solution)}): {solution}")
-        return edit_matrix(matrix, solution), measured_time
+    if model is not None:
+        model = [x for x in model if abs(x) in empties]
+        model = list(set(model))
+        model.sort(key = lambda x: abs(x))
+        print(f"\nHash of solved model ({len(model)} cells): {hash_model(model)}")
+        return update_matrix(matrix, model), measured_time
     
     return None, measured_time
 
