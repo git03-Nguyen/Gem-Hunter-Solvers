@@ -27,7 +27,7 @@ if __name__ == "__main__":
             print(f"\n{alg_count + 1}. Running algorithm {algorithm}")
             alg_count += 1
 
-            if algorithm == "bruteforce" and hash_model(model) is not None and hash_model(model) > 4e7:
+            if algorithm == "bruteforce" and hash_model(model) is not None and hash_model(model) >= 4e9:
                 print("Bruteforce algorithm is too slow for this model. Skipping...\n")
                 result += [[test_case, logging_info['CNFs'], logging_info['empties'], len([x for x in model if x > 0]), algorithm, "N/A", hash_model(model)]]
 
