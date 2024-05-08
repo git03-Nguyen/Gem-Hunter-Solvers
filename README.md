@@ -4,7 +4,7 @@
 This project implements multiple solvers for the Gem Hunter (originally from the game Minesweeper) game.
 
 ## Install Libraries:
-The project requires the following libraries to be installed: PySAT, Tabulate.
+The project requires the following libraries to be installed: `python-sat`, `tabulate`.
 ```bash
 pip install -r requirements.txt
 ```
@@ -33,7 +33,7 @@ python main.py pysat 5x5
 ```
 
 ## Output:
-After reading input from the file `testcases/5x5/input.txt`, the program will solve the grid using the PySAT algorithm.\
+After reading input from the file `testcases/5x5/input.txt`, the program will solve the grid using the chosen algorithm.\
 The output will be the solved grid, saved in a file named `output.txt` in the same directory.\
 If the grid is unsolvable, the output will be an empty file.\
 The results will also be printed in the console.\
