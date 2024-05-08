@@ -4,6 +4,7 @@
 This project implements multiple solvers for the Gem Hunter (originally from the game Minesweeper) game.
 
 ## Install Libraries:
+The project requires the following libraries to be installed: PySAT, Tabulate.
 ```bash
 pip install -r requirements.txt
 ```
