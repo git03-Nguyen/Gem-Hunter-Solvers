@@ -1,7 +1,7 @@
 # Description: File chính chứa hàm main, thực thi chương trình
 
 import sys
-from modules.inout import input_matrix, output_matrix, print_matrix, print_2matrix
+from modules.inout import input_matrix, output_matrix, print_2matrix
 from modules.solvers import solve
 from modules.utils import hash_model, update_matrix
 
@@ -15,7 +15,6 @@ _ALGORITHMS = {
 
 # Danh sách test case
 _TEST_CASES = {
-    "4x4": "testcases/4x4", 
     "5x5": "testcases/5x5",
     "9x9": "testcases/9x9",
     "11x11": "testcases/11x11",
@@ -53,7 +52,7 @@ def read_args(argv):
 # ---------------------------------------------
 # --------------- MAIN FUNCTION ---------------
 # ---------------------------------------------
-def run(argv, print_matrix = False):
+def run(argv, print_matrix = True):
     algorithm, test_case = read_args(argv)
     if test_case is None or algorithm is None: return
 
@@ -73,16 +72,15 @@ def run(argv, print_matrix = False):
         output_matrix(solution, output_file);
     else:
         output_matrix([[""]], output_file);
-
+    
     # In input và output ra console
     print(f"{print_2matrix(original_matrix, solution)}") if print_matrix else None
 
     # In thông tin ra console
-    print(f"Test {test_case.lower()}: {logging_info["CNFs"]} CNFs, {logging_info["empties"]} empty cells.")
+    print(f"Test {test_case.lower()}: {logging_info["CNFs"]} CNFs - {logging_info["empties"]} empty cells.")
     if model is None: print("No solution found!")
     else: print(f"Result hash: #{hash_model(model)} - {len([x for x in model if x > 0])} traps.")
-    print(f"Algorithm: {algorithm.upper()} - {elapsed_time:.4f} ms.")
-    print(f"Terminating...\n")
+    print(f"Algorithm: {algorithm.upper()} - {elapsed_time:.4f} ms. Terminating...\n")
 
     
 # ---------------------------------------------
@@ -94,37 +92,19 @@ if __name__ == "__main__":
 
     # TESTING
 
-    # run(["", "pysat", "4x4"])
-    # run(["", "dpll", "4x4"])
-    run(["", "backtracking", "4x4"])
-    # run(["", "bruteforce", "4x4"])
+    # test_case = "5x5"
+    test_case = "9x9"
+    # test_case = "11x11"
+    # test_case = "15x15"
+    # test_case = "20x20"
 
-    # run(["", "pysat", "5x5"])
-    # run(["", "dpll", "5x5"])
-    # run(["", "backtracking", "5x5"])
-    # run(["", "bruteforce", "5x5"])
+    logging = False
+    logging = True
 
-    # run(["", "pysat", "9x9"])
-    # run(["", "dpll", "9x9"])
-    # run(["", "backtracking", "9x9"])
-    # run(["", "bruteforce", "9x9"])
-
-    # run(["", "pysat", "11x11"])
-    # run(["", "dpll", "11x11"])
-    # run(["", "backtracking", "11x11"])
-    # run(["", "bruteforce", "11x11"])
-
-    # run(["", "pysat", "15x15"])
-    # run(["", "dpll", "15x15"])
-    # run(["", "backtracking", "15x15"])
-    # run(["", "bruteforce", "15x15"])
-
-    # run(["", "pysat", "20x20"])
-    # run(["", "dpll", "20x20"])
-    # run(["", "backtracking", "20x20"])
-    # run(["", "bruteforce", "20x20"])
-
-
+    run(["", "pysat", test_case], logging)
+    # run(["", "dpll", test_case], logging)
+    # run(["", "backtracking", test_case], logging)
+    # run(["", "bruteforce", test_case], logging)
 
     # py -m cProfile -s cumtime main.py 
     # py -m cProfile -s ncalls main.py 

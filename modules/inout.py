@@ -49,24 +49,18 @@ def output_matrix(matrix, file_name = "./testcases/output.txt"):
             f.write(", ".join([str(x) if x is not None else "_" for x in row]) + "\n")
 
 # ---------------------------------------------
-# Hàm in ma trận ra màn hình
-def print_matrix(matrix):
-    str_matrix = "";
-    for row in matrix:
-        str_matrix += ", ".join([str(x) if x is not None else "_" for x in row]) + "\n"
-    return str_matrix
-
 # Hàm in 2 ma trận cùng kích thước lên 2 cột
 def print_2matrix(matrix1, matrix2):
     str_matrix = ""
-    # if matrix2 is None:
-    #     # In ra ma trận 1, bên cạnh là ma trận 2 với None
-    #     for r1 in matrix1:
-    #         str_matrix += ", ".join([str(x) if x is not None else "_" for x in r1]) + "  |  " + ", ".join(["_" for _ in range(len(r1))]) + "\n"
-    #     return str_matrix
-    for r1, r2 in zip(matrix1, matrix2):
-        str_matrix += ", ".join([str(x) if x is not None else "_" for x in r1]) + "  |  " + ", ".join([str(x) if x is not None else "_" for x in r2]) + "\n"
-    return str_matrix
+    if matrix2 is None:
+        # In ra ma trận 1, bên cạnh là ma trận 2 với None
+        for r1 in matrix1:
+            str_matrix += ", ".join([str(x) if x is not None else "_" for x in r1]) + "  |  " + ", ".join(["_" for _ in range(len(r1))]) + "\n"
+        return str_matrix
+    else:
+        for r1, r2 in zip(matrix1, matrix2):
+            str_matrix += ", ".join([str(x) if x is not None else "_" for x in r1]) + "  |  " + ", ".join([str(x) if x is not None else "_" for x in r2]) + "\n"
+        return str_matrix
 
         
 

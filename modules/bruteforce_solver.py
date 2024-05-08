@@ -1,7 +1,7 @@
 # Description: Định nghĩa hàm giải bài toán Gem Hunter bằng thuật toán Bruteforce
 
-def is_valid(KB, case, empties, bit_masks):
-    # Có chứa một clause nào mà không thoả mãn thì trả về True
+def is_valid(KB, case, bit_masks):
+    # Có chứa một clause nào mà không thoả mãn thì trả về False
     # Clause không thoả mãn khi tất cả các literal đều False
     for clause in KB:
         is_clause_true = False
@@ -43,7 +43,7 @@ def solve_by_bruteforce(KB, empties):
         #     continue
 
         # # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
-        if is_valid(KB, c, empties, bit_masks):
+        if is_valid(KB, c, bit_masks):
             case = [bool(c & (1 << i)) for i in range(length)]
             model = [empties_list[i] if case[i] else -empties_list[i] for i in range(length)]
             return model
