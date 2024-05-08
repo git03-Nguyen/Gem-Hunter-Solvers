@@ -31,11 +31,14 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
 
         Output:
             - solution: model của SAT Solver hoặc None nếu không có lời giải
+            - logging_info: thông tin về thuật toán, số lượng CNFs, số lượng ô trống
+            - KB_reseved: KB gốc
             - measured_time: thời gian thực thi (ms)
     '''
 
     # Tạo KB gồm các CNF từ ma trận
     KB = get_CNF_clauses(matrix)
+    KB_reseved = [clause.copy() for clause in KB]
     # print(f"\n- {len(KB)} CNFs: {KB[:min(len(KB), 8)]}...")
 
     pad_matrix = padding(matrix)
@@ -100,9 +103,10 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
                 model.append(-empty) # Mặc định là False - "G"
         model = list(set(model))
         model.sort(key = lambda x: abs(x))
-        return model, logging_info, measured_time
+        logging_info["traps"] = len([x for x in model if x > 0])
+        return model, logging_info, KB_reseved, measured_time
     
-    return None, logging_info, measured_time
+    return None, logging_info, KB_reseved, measured_time
 
 
 

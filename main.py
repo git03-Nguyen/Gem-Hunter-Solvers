@@ -1,7 +1,7 @@
 # Description: File chính chứa hàm main, thực thi chương trình
 
 import sys
-from modules.inout import input_matrix, output_matrix, print_2matrix
+from modules.inout import input_matrix, output_matrix, print_2matrix, output_CNFs
 from modules.solvers import solve
 from modules.utils import hash_model, update_matrix
 
@@ -59,15 +59,18 @@ def run(argv, print_matrix = True):
     # Đọc file input và output
     input_file = _TEST_CASES[test_case] + "/input.txt"
     output_file = _TEST_CASES[test_case] + "/output.txt"
+    output_CNFs_file = _TEST_CASES[test_case] + "/CNFs.txt"
 
     matrix = input_matrix(input_file); 
     original_matrix = [row.copy() for row in matrix]
 
     # Giải bài toán
-    model, logging_info, elapsed_time = solve(matrix, algorithm)
+    model, logging_info, CNFs, elapsed_time = solve(matrix, algorithm)
     solution = update_matrix(matrix, model)
     
     # Xuất kết quả
+    if CNFs is not None:
+        output_CNFs(CNFs, output_CNFs_file)
     if solution is not None:
         output_matrix(solution, output_file);
     else:
@@ -82,6 +85,7 @@ def run(argv, print_matrix = True):
     else: print(f"Result hash: #{hash_model(model)} - {len([x for x in model if x > 0])} traps.")
     print(f"Algorithm: {algorithm.upper()} - {elapsed_time:.4f} ms. Terminating...")
 
+    return test_case, algorithm, elapsed_time, logging_info, model
     
 # ---------------------------------------------
 if __name__ == "__main__":

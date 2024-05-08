@@ -76,6 +76,8 @@ def hash_model(model):
     '''Hash model thành một số nguyên:\\
           True -> 1, False -> 0.
     '''
+    if model is None:
+        return None
     num = 0
     for i in range(len(model)):
         if model[i] > 0:

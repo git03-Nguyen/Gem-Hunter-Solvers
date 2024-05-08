@@ -49,6 +49,16 @@ def output_matrix(matrix, file_name = "./testcases/output.txt"):
             f.write(", ".join([str(x) if x is not None else "_" for x in row]) + "\n")
 
 # ---------------------------------------------
+# Hàm xuất CNFs ra file
+def output_CNFs(KB, file_name = "./testcases/CNFs.txt"):
+    '''Ghi CNFs ra file, mỗi dòng là một clause, mỗi literal cách nhau bởi dấu cách " ".
+    '''
+    with open(file_name, 'w') as f:
+        for clause in KB:
+            f.write(" ".join([str(x) for x in clause]) + "\n")
+
+
+# ---------------------------------------------
 # Hàm in 2 ma trận cùng kích thước lên 2 cột
 def print_2matrix(matrix1, matrix2):
     str_matrix = ""
