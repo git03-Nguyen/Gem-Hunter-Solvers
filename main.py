@@ -3,6 +3,7 @@
 import sys
 from modules.inout import input_matrix, output_matrix, print_matrix, print_2matrix
 from modules.solvers import solve
+from modules.utils import hash_model, update_matrix
 
 # Danh sách thuật toán
 _ALGORITHMS = {
@@ -64,7 +65,8 @@ def run(argv):
     copy_matrix = [row.copy() for row in matrix]
 
     # Giải bài toán
-    solution, elapsed_time = solve(matrix, algorithm)
+    model, elapsed_time = solve(matrix, algorithm)
+    solution = update_matrix(copy_matrix, model)
     
     # Xuất kết quả
     if solution is not None:
@@ -79,35 +81,50 @@ def run(argv):
         print(f"{print_matrix(copy_matrix)}")
         print("No solution found")
 
-    print(f"{algorithm.upper()}: {test_case.lower()}")
+    print(f"Result hash: {hash_model(model)}")
+    print(f"Algorithm: {algorithm.upper()} - {test_case.lower()}")
     print(f"Elapsed time: {elapsed_time:.4f} ms. Exitting...")
 
 
 
 # ---------------------------------------------
 if __name__ == "__main__":
-    try:
-        run(sys.argv)
-    except Exception as e:
-        print(f"Error: {e}")
+    # try:
+    #     run(sys.argv)
+    # except Exception as e:
+    #     print(f"Error: {e}")
 
-    # Testing
+    # TESTING
+
     # run(["", "pysat", "4x4"])
-    # run(["", "pysat", "5x5"])
-    # run(["", "pysat", "9x9"])
-
-
     # run(["", "dpll", "4x4"])
-    # run(["", "dpll", "5x5"])
-    # run(["", "dpll", "9x9"])
-
     # run(["", "backtracking", "4x4"])
-    # run(["", "backtracking", "5x5"])
-    # run(["", "backtracking", "9x9"])
-
-    # run(["", "bruteforce", "5x5"])
     # run(["", "bruteforce", "4x4"])
+
+    # run(["", "pysat", "5x5"])
+    # run(["", "dpll", "5x5"])
+    # run(["", "backtracking", "5x5"])
+    # run(["", "bruteforce", "5x5"])
+
+    # run(["", "pysat", "9x9"])
+    run(["", "dpll", "9x9"])
+    # run(["", "backtracking", "9x9"])
     # run(["", "bruteforce", "9x9"])
+
+    # run(["", "pysat", "11x11"])
+    # run(["", "dpll", "11x11"])
+    # run(["", "backtracking", "11x11"])
+    # run(["", "bruteforce", "11x11"])
+
+    # run(["", "pysat", "15x15"])
+    # run(["", "dpll", "15x15"])
+    # run(["", "backtracking", "15x15"])
+    # run(["", "bruteforce", "15x15"])
+
+    # run(["", "pysat", "20x20"])
+    # run(["", "dpll", "20x20"])
+    # run(["", "backtracking", "20x20"])
+    # run(["", "bruteforce", "20x20"])
 
 
 

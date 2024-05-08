@@ -52,13 +52,13 @@ def solve_by_backtracking(KB, empties):
 
         # Gán giá trị cho ô trống thứ index là 0 hoặc 1            
         for i in values:
-            if i: # Gán giá trị cho ô trống là 1
+            if not i: # Gán giá trị cho ô trống là 0
+                if is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
+                    continue                
+            else: # Gán giá trị cho ô trống là 1
                 solution_bits |= 1 << index
                 if is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
                     continue
-            else: # Gán giá trị cho ô trống là 0
-                if is_conflict(KB, solution_bits, index, empties_dict, empties, bit_masks):
-                    continue                
             
             # Nếu không conflict thì tiếp tục gán giá trị cho ô trống tiếp theo
             solution_bits = backtrack(solution_bits, index + 1)

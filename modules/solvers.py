@@ -8,7 +8,7 @@
 # - solve_by_bruteforce(KB): Giải bài toán bằng Bruteforce
 
 from modules.cnf import get_CNF_clauses
-from modules.utils import update_matrix, padding, to_1D, hash_model
+from modules.utils import padding, to_1D
 
 from modules.pysat_solver import solve_by_pysat
 from modules.dpll_solver import solve_by_dpll
@@ -33,29 +33,30 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
             - solution: model của SAT Solver hoặc None nếu không có lời giải
             - measured_time: thời gian thực thi (ms)
     '''
-    print()
-
+    
+    # Tạo KB gồm các CNF từ ma trận
     KB = get_CNF_clauses(matrix)
-    print(f"- {len(KB)} CNFs: {KB[:min(len(KB), 8)]}...")
+    print(f"\n- {len(KB)} CNFs: {KB[:min(len(KB), 8)]}...")
 
     pad_matrix = padding(matrix)
     n, m = len(pad_matrix), len(pad_matrix[0])
 
+    # Tìm các ô trống
     empties = set()
     for i in range(1, n - 1):
         for j in range(1, m - 1):
             if pad_matrix[i][j] is None:
                 empties.add(to_1D((i - 1, j - 1), m - 2))
-    print(f"- {len(empties)} empty cells (): {list(empties)[:min(len(empties), 15)]}...")
+    print(f"- {len(empties)} empty cells: {list(empties)[:min(len(empties), 15)]}...\n")
 
+    # Tìm các ô chứa số
     numbers = {}
     for i in range(1, n - 1):
         for j in range(1, m - 1):
             if type(pad_matrix[i][j]) is int:
                 numbers[(i - 1, j - 1)] = pad_matrix[i][j]
     
-
-
+    # Chọn thuật toán giải
     func, args = None, None
     if algorithm == "pysat":
         func = solve_by_pysat
@@ -74,6 +75,7 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
 
     start, end, measured_time = 0, 0, 0
     
+    # Thực thi thuật toán
     if measure_time:
         start = timeit.default_timer()
         model = func(*args)
@@ -82,12 +84,16 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
     else:
         model = func(*args)
 
+    # Nếu có lời giải, thêm các ô trống còn thiếu vào model
+    # Những ô trống này thực chất mang giá trị nào cũng được, vì không ảnh hưởng đến lời giải
+    # Ở đây ta chọn mặc định là False - "G"
     if model is not None:
-        model = [x for x in model if abs(x) in empties]
+        for empty in empties:
+            if empty not in model:
+                model.append(-empty)
         model = list(set(model))
         model.sort(key = lambda x: abs(x))
-        print(f"\nHash of solved model ({len(model)} cells): {hash_model(model)}")
-        return update_matrix(matrix, model), measured_time
+        return model, measured_time
     
     return None, measured_time
 

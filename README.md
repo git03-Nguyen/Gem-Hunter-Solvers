@@ -34,7 +34,7 @@ python main.py pysat 5x5
 ## Output:
 After reading input from the file `testcases/5x5/input.txt`, the program will solve the grid using the PySAT algorithm.\
 The output will be the solved grid, saved in a file named `output.txt` in the same directory.\
-If the grid is unsolvable, the output will be `Unsolvable`.
+If the grid is unsolvable, the output will be an empty file.
 
 
 
