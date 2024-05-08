@@ -59,6 +59,11 @@ def print_matrix(matrix):
 # Hàm in 2 ma trận cùng kích thước lên 2 cột
 def print_2matrix(matrix1, matrix2):
     str_matrix = ""
+    # if matrix2 is None:
+    #     # In ra ma trận 1, bên cạnh là ma trận 2 với None
+    #     for r1 in matrix1:
+    #         str_matrix += ", ".join([str(x) if x is not None else "_" for x in r1]) + "  |  " + ", ".join(["_" for _ in range(len(r1))]) + "\n"
+    #     return str_matrix
     for r1, r2 in zip(matrix1, matrix2):
         str_matrix += ", ".join([str(x) if x is not None else "_" for x in r1]) + "  |  " + ", ".join([str(x) if x is not None else "_" for x in r2]) + "\n"
     return str_matrix

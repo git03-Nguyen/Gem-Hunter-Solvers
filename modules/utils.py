@@ -56,6 +56,8 @@ def update_matrix(matrix, model):
     '''Chỉnh sửa ma trận kết quả từ model của SAT Solver:\\
           Ô nào False thì là "G", True thì là "T".
     '''
+    if model is None:
+        return None
     n_rows = len(matrix)
     n_cols = len(matrix[0])
     for i in range(n_rows):

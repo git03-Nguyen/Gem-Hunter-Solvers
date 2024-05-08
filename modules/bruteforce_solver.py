@@ -19,9 +19,7 @@ def is_valid(KB, case, empties, bit_masks):
     return True
 
 # Giải bằng bruteforce
-def solve_by_bruteforce(KB, empties, numbers):
-
-    numbers_sum = sum([numbers[pos] for pos in numbers.keys()])
+def solve_by_bruteforce(KB, empties):
 
     # Tạo tất cả các trường hợp có thể của các biến chưa biết
     # => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
@@ -33,7 +31,6 @@ def solve_by_bruteforce(KB, empties, numbers):
 
     start = 0
     end = 1 << length
-    sum_div_8 = numbers_sum >> 3
     # 2^20-1 = 1048575, 2^24-1 = 16777215, 2^27-1 = 134217727
 
     for c in range(start, end):

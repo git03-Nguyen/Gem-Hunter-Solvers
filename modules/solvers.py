@@ -33,10 +33,10 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
             - solution: model của SAT Solver hoặc None nếu không có lời giải
             - measured_time: thời gian thực thi (ms)
     '''
-    
+
     # Tạo KB gồm các CNF từ ma trận
     KB = get_CNF_clauses(matrix)
-    print(f"\n- {len(KB)} CNFs: {KB[:min(len(KB), 8)]}...")
+    # print(f"\n- {len(KB)} CNFs: {KB[:min(len(KB), 8)]}...")
 
     pad_matrix = padding(matrix)
     n, m = len(pad_matrix), len(pad_matrix[0])
@@ -47,14 +47,13 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
         for j in range(1, m - 1):
             if pad_matrix[i][j] is None:
                 empties.add(to_1D((i - 1, j - 1), m - 2))
-    print(f"- {len(empties)} empty cells: {list(empties)[:min(len(empties), 15)]}...\n")
+    # print(f"- {len(empties)} empty cells: {list(empties)[:min(len(empties), 15)]}...\n")
 
-    # Tìm các ô chứa số
-    numbers = {}
-    for i in range(1, n - 1):
-        for j in range(1, m - 1):
-            if type(pad_matrix[i][j]) is int:
-                numbers[(i - 1, j - 1)] = pad_matrix[i][j]
+    logging_info = {
+        "algorithm": algorithm,
+        "CNFs": len(KB),
+        "empties": len(empties),
+    }
     
     # Chọn thuật toán giải
     func, args = None, None
@@ -69,7 +68,7 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
         args = [KB, empties]
     elif algorithm == "bruteforce":
         func = solve_by_bruteforce
-        args = [KB, empties, numbers]
+        args = [KB, empties]
     else:
         raise ValueError("Invalid algorithm")
 
@@ -88,14 +87,15 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
     # Những ô trống này thực chất mang giá trị nào cũng được, vì không ảnh hưởng đến lời giải
     # Ở đây ta chọn mặc định là False - "G"
     if model is not None:
+        model = [x for x in model if x in empties or -x in empties]
         for empty in empties:
             if empty not in model:
-                model.append(-empty)
+                model.append(-empty) # Mặc định là False - "G"
         model = list(set(model))
         model.sort(key = lambda x: abs(x))
-        return model, measured_time
+        return model, logging_info, measured_time
     
-    return None, measured_time
+    return None, logging_info, measured_time
 
 
 

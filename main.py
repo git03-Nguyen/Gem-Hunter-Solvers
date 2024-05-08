@@ -53,7 +53,7 @@ def read_args(argv):
 # ---------------------------------------------
 # --------------- MAIN FUNCTION ---------------
 # ---------------------------------------------
-def run(argv):
+def run(argv, print_matrix = False):
     algorithm, test_case = read_args(argv)
     if test_case is None or algorithm is None: return
 
@@ -62,11 +62,11 @@ def run(argv):
     output_file = _TEST_CASES[test_case] + "/output.txt"
 
     matrix = input_matrix(input_file); 
-    copy_matrix = [row.copy() for row in matrix]
+    original_matrix = [row.copy() for row in matrix]
 
     # Giải bài toán
-    model, elapsed_time = solve(matrix, algorithm)
-    solution = update_matrix(copy_matrix, model)
+    model, logging_info, elapsed_time = solve(matrix, algorithm)
+    solution = update_matrix(matrix, model)
     
     # Xuất kết quả
     if solution is not None:
@@ -74,19 +74,17 @@ def run(argv):
     else:
         output_matrix([[""]], output_file);
 
-    # In ra console
-    if solution is not None:
-        print(f"{print_2matrix(copy_matrix, solution)}")
-    else:
-        print(f"{print_matrix(copy_matrix)}")
-        print("No solution found")
+    # In input và output ra console
+    print(f"{print_2matrix(original_matrix, solution)}") if print_matrix else None
 
-    print(f"Result hash: {hash_model(model)}")
-    print(f"Algorithm: {algorithm.upper()} - {test_case.lower()}")
-    print(f"Elapsed time: {elapsed_time:.4f} ms. Exitting...")
+    # In thông tin ra console
+    print(f"Test {test_case.lower()}: {logging_info["CNFs"]} CNFs, {logging_info["empties"]} empty cells.")
+    if model is None: print("No solution found!")
+    else: print(f"Result hash: #{hash_model(model)} - {len([x for x in model if x > 0])} traps.")
+    print(f"Algorithm: {algorithm.upper()} - {elapsed_time:.4f} ms.")
+    print(f"Terminating...\n")
 
-
-
+    
 # ---------------------------------------------
 if __name__ == "__main__":
     # try:
@@ -98,7 +96,7 @@ if __name__ == "__main__":
 
     # run(["", "pysat", "4x4"])
     # run(["", "dpll", "4x4"])
-    # run(["", "backtracking", "4x4"])
+    run(["", "backtracking", "4x4"])
     # run(["", "bruteforce", "4x4"])
 
     # run(["", "pysat", "5x5"])
@@ -107,7 +105,7 @@ if __name__ == "__main__":
     # run(["", "bruteforce", "5x5"])
 
     # run(["", "pysat", "9x9"])
-    run(["", "dpll", "9x9"])
+    # run(["", "dpll", "9x9"])
     # run(["", "backtracking", "9x9"])
     # run(["", "bruteforce", "9x9"])
 
