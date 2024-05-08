@@ -74,34 +74,34 @@ def run(argv, print_matrix = True):
         output_matrix([[""]], output_file);
     
     # In input và output ra console
-    print(f"{print_2matrix(original_matrix, solution)}") if print_matrix else None
+    print(f"\n{print_2matrix(original_matrix, solution)}") if print_matrix else None
 
     # In thông tin ra console
     print(f"Test {test_case.lower()}: {logging_info["CNFs"]} CNFs - {logging_info["empties"]} empty cells.")
     if model is None: print("No solution found!")
     else: print(f"Result hash: #{hash_model(model)} - {len([x for x in model if x > 0])} traps.")
-    print(f"Algorithm: {algorithm.upper()} - {elapsed_time:.4f} ms. Terminating...\n")
+    print(f"Algorithm: {algorithm.upper()} - {elapsed_time:.4f} ms. Terminating...")
 
     
 # ---------------------------------------------
 if __name__ == "__main__":
-    # try:
-    #     run(sys.argv)
-    # except Exception as e:
-    #     print(f"Error: {e}")
+    try:
+        run(sys.argv)
+    except Exception as e:
+        print(f"Error: {e}")
 
     # TESTING
 
     # test_case = "5x5"
-    test_case = "9x9"
+    # test_case = "9x9"
     # test_case = "11x11"
     # test_case = "15x15"
     # test_case = "20x20"
 
-    logging = False
-    logging = True
+    # logging = False
+    # logging = True
 
-    run(["", "pysat", test_case], logging)
+    # run(["", "pysat", test_case], logging)
     # run(["", "dpll", test_case], logging)
     # run(["", "backtracking", test_case], logging)
     # run(["", "bruteforce", test_case], logging)

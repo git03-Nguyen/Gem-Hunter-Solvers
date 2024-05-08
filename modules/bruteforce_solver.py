@@ -1,4 +1,13 @@
 # Description: Định nghĩa hàm giải bài toán Gem Hunter bằng thuật toán Bruteforce
+from math import comb
+
+def next_set_of_n_elements(x):
+    if x == 0: return 0
+    smallest = x & -x
+    ripple = x + smallest
+    new_smallest = ripple & -ripple
+    ones = ((new_smallest // smallest) >> 1) - 1
+    return ripple | ones
 
 def is_valid(KB, case, bit_masks):
     # Có chứa một clause nào mà không thoả mãn thì trả về False
@@ -19,7 +28,7 @@ def is_valid(KB, case, bit_masks):
     return True
 
 # Giải bằng bruteforce
-def solve_by_bruteforce(KB, empties):
+def solve_by_bruteforce(KB, empties, numbers):
 
     # Tạo tất cả các trường hợp có thể của các biến chưa biết
     # => 2^k trường hợp (do mỗi biến có 2 giá trị "T" hoặc "G")
@@ -29,14 +38,23 @@ def solve_by_bruteforce(KB, empties):
     empties_list = list(empties)
     bit_masks = {empties_list[i]: 1 << i for i in range(length)}
 
-    start = 0
+    # Tính tổng số lượng bẫy ghi trong các số
+    sum_numbers = sum([numbers[pos] for pos in numbers.keys()])
+    sum_div_8 = sum_numbers // 8
+    
+    # sum_số / 8 <= số traps <= min(sum_số, số ô trống)
+    min_traps = sum_numbers // 8
+    max_traps = min(sum_numbers, length)
     end = 1 << length
-    # 2^20-1 = 1048575, 2^24-1 = 16777215, 2^27-1 = 134217727
 
+    # Bruteforce 2^length trường hợp
+    start = (1 << min_traps) - 1
+    end = 1 << length
+    print(f" - Bruteforcing {end} cases for {length} empty cells...")
     for c in range(start, end):
 
-        if c & 1048575 == 0:
-                print(f"Processing to case {c}...")
+        # Breakpoints để theo dõi: 2^20-1 = 1048575, 2^24-1 = 16777215, 2^27-1 = 134217727
+        if c & 16777215 == 0: print(f"  + Processing case no. {c}...")
 
         # Nếu num_traps < sum_số/8 thì bỏ qua
         # if c < c.bit_count() < sum_div_8:
@@ -51,3 +69,33 @@ def solve_by_bruteforce(KB, empties):
     return None
 
 
+
+    # # Bruteforce từ min_traps cho đến max_traps
+    # print(f"Bruteforcing {min_traps} - {max_traps} traps / {length} empty cells...")
+
+    # for num_traps in range(min_traps, max_traps + 1):
+
+    #     num_cases = comb(length, num_traps)
+    #     print(f"- Processing {num_traps} traps: {num_cases} cases...")
+
+    #     start = (1 << num_traps) - 1
+    #     case = start
+        
+    #     # Breakpoints để theo dõi: 2^20-1 = 1048575, 2^24-1 = 16777215, 2^27-1 = 134217727    
+    #     break_point = 1048575 if num_cases <= 2e7 else 16777215 if num_cases <= 2e8 else 134217727
+        
+    #     # Duyệt qua tất cả các trường hợp có số traps = num_traps
+    #     for count in range(1, num_cases + 1):
+
+    #         if count & break_point == 0: print(f"  + Loop no. {count}...")
+            
+    #         # Kiểm tra xem trường hợp này có phải là trường hợp đúng không
+    #         if is_valid(KB, case, bit_masks):
+    #             model = [empties_list[i] if case & (1 << i) else -empties_list[i] for i in range(length)]
+    #             return model
+            
+    #         # Tìm trường hợp tiếp theo: thuật toán bit-twiddling hack from hackersdelight.org.
+    #         case = next_set_of_n_elements(case)
+
+    # return None
+                

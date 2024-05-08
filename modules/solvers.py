@@ -49,6 +49,13 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
                 empties.add(to_1D((i - 1, j - 1), m - 2))
     # print(f"- {len(empties)} empty cells: {list(empties)[:min(len(empties), 15)]}...\n")
 
+    # Tìm các ô chứa số
+    numbers = {}
+    for i in range(1, n - 1):
+        for j in range(1, m - 1):
+            if type(pad_matrix[i][j]) is int:
+                numbers[(i - 1, j - 1)] = pad_matrix[i][j]
+
     logging_info = {
         "algorithm": algorithm,
         "CNFs": len(KB),
@@ -68,7 +75,7 @@ def solve(matrix, algorithm = "pysat", measure_time = True):
         args = [KB, empties]
     elif algorithm == "bruteforce":
         func = solve_by_bruteforce
-        args = [KB, empties]
+        args = [KB, empties, numbers]
     else:
         raise ValueError("Invalid algorithm")
 
