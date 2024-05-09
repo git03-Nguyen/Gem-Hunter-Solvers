@@ -41,15 +41,6 @@ def subsets_of(arr, k):
     subsets = [list(x) for x in combinations(arr, k)]
     return subsets
 
-
-# Hàm kiểm tra 2 list true_case và case giống nhau
-def is_similar(list_1, list_2): 
-    length = len(list_1)
-    for i in range(length):
-        if list_1[i] != list_2[i]:
-            return False
-    return True
-
 # ---------------------------------------------
 # Hàm chỉnh sửa ma trận kết quả
 def update_matrix(matrix, model):

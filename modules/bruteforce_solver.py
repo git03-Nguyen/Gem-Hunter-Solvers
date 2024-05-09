@@ -1,13 +1,4 @@
 # Description: Định nghĩa hàm giải bài toán Gem Hunter bằng thuật toán Bruteforce
-from math import comb
-
-def next_set_of_n_elements(x):
-    if x == 0: return 0
-    smallest = x & -x
-    ripple = x + smallest
-    new_smallest = ripple & -ripple
-    ones = ((new_smallest // smallest) >> 1) - 1
-    return ripple | ones
 
 def is_valid(KB, case, bit_masks):
     # Có chứa một clause nào mà không thoả mãn thì trả về False
@@ -69,6 +60,21 @@ def solve_by_bruteforce(KB, empties, numbers):
     return None
 
 
+
+
+    # CÁCH NÀY TƯỞNG NHANH, NHƯNG KHÁ CHẬM.
+    # VÍ DỤ: đáp án tại case 3 tỉ, thì với bruteforce như trên, cần loop từ 1 đến 3 tỉ.
+    # Còn với cách dưới, loop theo số lượng traps, và tổng số case xét là tổng sigma của comb(n, k) với k từ min_traps đến max_traps
+   
+    # from math import comb
+
+    # def next_set_of_n_elements(x):
+    #     if x == 0: return 0
+    #     smallest = x & -x
+    #     ripple = x + smallest
+    #     new_smallest = ripple & -ripple
+    #     ones = ((new_smallest // smallest) >> 1) - 1
+    #     return ripple | ones
 
     # # Bruteforce từ min_traps cho đến max_traps
     # print(f"Bruteforcing {min_traps} - {max_traps} traps / {length} empty cells...")
