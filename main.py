@@ -80,7 +80,7 @@ def run(argv, print_matrix = True):
     print(f"\n{print_2matrix(original_matrix, solution)}") if print_matrix else None
 
     # In thông tin ra console
-    print(f"Test {test_case.lower()}: {logging_info["CNFs"]} CNFs - {logging_info["empties"]} empty cells.")
+    print(f"Test {test_case.lower()}: {logging_info['CNFs']} CNFs - {logging_info['empties']} empty cells.")
     if model is None: print("No solution found!")
     else: print(f"Result hash: #{hash_model(model)} - {len([x for x in model if x > 0])} traps.")
     print(f"Algorithm: {algorithm.upper()} - {elapsed_time:.4f} ms. Terminating...")
